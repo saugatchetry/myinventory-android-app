@@ -7,4 +7,5 @@
     <string name="title_activity_select_task">SelectTask</string>
     <string name="title_activity_stock_transfer">StockTransfer</string>
     <string name="title_activity_confirm_stock_transfer">ConfirmStockTransferActivity</string>
+
 </resources>

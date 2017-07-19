@@ -19,7 +19,7 @@ public class NetworkManager {
 
     private static String Tag = "Network Manager";
     private static NetworkManager instance = null;
-    private ReceiptClient _client;
+    public ReceiptClient client;
     public enum API {
         GET_ALL_VENDORS,
         GET_ALL_ITEMS,
@@ -33,7 +33,7 @@ public class NetworkManager {
                 .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder1.build();
-        _client = retrofit.create(ReceiptClient.class);
+        client = retrofit.create(ReceiptClient.class);
     }
 
     // Singleton
@@ -44,6 +44,7 @@ public class NetworkManager {
         instance = new NetworkManager();
         return instance;
     }
+
 
     public void sendRequest(NetworkInterface instance, API api) {
         Log.d(Tag, "Sending request");

@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
@@ -21,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,24 +43,19 @@ public class SignInActivity extends AppCompatActivity {
 
 
 
-    EditText vendorName;
+    Spinner vendorName;
     Button btnSave;
     SharedPreferences sharedpreferences;
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String Name = "nameKey";
-
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         ActiveAndroid.initialize(this);
 
+        sharedpreferences = getSharedPreferences(Config.SHARED_PREF_STORE, Context.MODE_PRIVATE);
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
-        final String storeName = sharedpreferences.getString(Name,"default");
+        final String storeName = sharedpreferences.getString(Config.P_STORE_KEY,"default");
 
         if(!storeName.equalsIgnoreCase("default")){
             Intent intent = new Intent(this, SelectTask.class);
@@ -68,27 +66,27 @@ public class SignInActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        vendorName = (EditText) findViewById(R.id.vendorNameText);
+        ArrayList<String> vendorNames = getIntent().getStringArrayListExtra(Config.I_VENDOR_LIST);
+
+        vendorName = (Spinner) findViewById(R.id.vendorNameSpinner);
         btnSave = (Button) findViewById(R.id.saveButton);
-
-
+        ArrayAdapter<String> adapterVendor = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,vendorNames);
+        adapterVendor.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        vendorName.setAdapter(adapterVendor);
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences.Editor editor = sharedpreferences.edit();
 
-                editor.putString(Name, vendorName.getText().toString());
-
-                String myvendorName = vendorName.getText().toString();
-
+                editor.putString(Config.P_STORE_KEY, vendorName.getSelectedItem().toString());
+                String myvendorName = vendorName.getSelectedItem().toString();
                 editor.commit();
+                Toast.makeText(SignInActivity.this,"Successful",Toast.LENGTH_LONG).show();
 
-                Toast.makeText(SignInActivity.this,"Thanks",Toast.LENGTH_LONG).show();
                 GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
                 Gson gson = builder.create();
                 Retrofit.Builder builder1 = new Retrofit.Builder()
-                        //.baseUrl("http://10.0.2.2:8080/")
                         .baseUrl(Config.SERVER_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson));
                 Retrofit retrofit = builder1.build();
@@ -109,43 +107,12 @@ public class SignInActivity extends AppCompatActivity {
                         Log.e("Error","Network call failed because - "+t.getLocalizedMessage());
                     }
                 });
-
-                Call<List<Vendors>> call1 = receiptClient.getAllVendors();
-                call1.enqueue(new Callback<List<Vendors>>() {
-                    @Override
-                    public void onResponse(Call<List<Vendors>> call, Response<List<Vendors>> response) {
-                        saveVendorsToDB(response.body());
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Vendors>> call, Throwable t) {
-                        Toast.makeText(SignInActivity.this,"Failed to Connect to Server",Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SignInActivity.this, SelectTask.class);
-                        startActivity(intent);
-                        finish();
-
-                    }
-                });
-
-
-
             }
         });
 
     }
 
-    private void saveVendorsToDB(List<Vendors> body) {
-
-        for (Vendors vendor : body){
-            Vendors ven = new Vendors();
-            ven.storeName = vendor.storeName;
-            ven.save();
-        }
-
-    }
-
     private void saveItemsToDB(List<Items> body) {
-
 
         for(Items items : body){
             Items i = new Items();
@@ -154,14 +121,6 @@ public class SignInActivity extends AppCompatActivity {
             i.save();
         }
 
-        /*for (Map.Entry<String, Float> entry : body.entrySet()) {
-            Items items = new Items();
-            items.itemName = entry.getKey();
-            items.rate = entry.getValue();
-            Log.d("Response","itemname = "+items.itemName);
-            items.save();
-        }
-        Log.d("Test","DB create .. Data inserted");*/
         Intent intent = new Intent(SignInActivity.this, SelectTask.class);
         startActivity(intent);
         finish();

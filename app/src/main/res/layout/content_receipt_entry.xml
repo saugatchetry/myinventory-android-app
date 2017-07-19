@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_receipt_entry"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="zakoi.com.myinventory.ReceiptEntry"
+    tools:showIn="@layout/activity_receipt_entry">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/dateLayout"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateLabel"
+            android:text="Date"
+            android:layout_weight="0.3"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:ems="10"
+            android:id="@+id/dateText"
+
+            android:layout_gravity="center_vertical"
+            android:hint="Enter Date"
+            android:layout_weight="0.4"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif"
+            android:textStyle="normal|bold"
+            android:textAlignment="center" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:layout_weight="0.3"
+            android:id="@+id/dateEditButton"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/customerName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dateLayout">
+
+        <TextView
+
+            android:text="CustomerName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/customerLabel" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:padding="8dp"
+            android:background="@drawable/round"
+            android:text="Cash"
+            android:layout_below="@+id/customerLabel"
+            android:ems="10"
+            android:id="@+id/customerNameText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginTop="10dp"
+        android:id="@+id/customerPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/customerName">
+
+        <TextView
+
+            android:text="Phone Number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/customerPhoneNumberLabel" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:hint="Phone Number"
+            android:background="@drawable/round"
+            android:padding="8dp"
+            android:layout_below="@+id/customerPhoneNumberLabel"
+            android:ems="10"
+            android:id="@+id/customerPhoneNumberText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/itemName"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/customerPhoneNumber">
+
+        <TextView
+
+            android:text="Item Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/itemNameLabel" />
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/itemNameLabel"
+            android:background="@drawable/round"
+            android:padding="8dp"
+            android:ems="10"
+            android:id="@+id/itemNameText1"/>
+
+        <!--<EditText-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:inputType="textPersonName"-->
+            <!--android:hint="Item Name"-->
+            <!--android:layout_below="@+id/itemNameLabel"-->
+            <!--android:ems="10"-->
+            <!--android:id="@+id/itemNameText" />-->
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/uomLayout"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/itemName">
+
+        <TextView
+
+            android:text="Item UOM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/itemUOMLabel" />
+
+        <TextView
+
+            android:text="Item UOM"
+            android:layout_width="wrap_content"
+            android:paddingLeft="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/itemUOMLabel"
+            android:layout_height="wrap_content"
+            android:id="@+id/itemUOMText" />
+
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/quantity"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/uomLayout">
+
+        <TextView
+
+            android:text="Quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/quantityLabel" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:background="@drawable/round"
+            android:padding="8dp"
+            android:hint="Quantity"
+            android:layout_below="@+id/quantityLabel"
+            android:ems="10"
+            android:id="@+id/quantityText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rate"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/quantity">
+
+        <TextView
+
+            android:text="Rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rateLabel" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:background="@drawable/round"
+            android:padding="8dp"
+            android:hint="Rate"
+            android:layout_below="@+id/rateLabel"
+            android:ems="10"
+            android:id="@+id/rateText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/submitButton"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rate">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Submit"
+            android:id="@+id/submitReceiptButton"/>
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="zakoi.com.myinventory.SignInActivity">
+    <item
+    android:id="@+id/edit"
+    android:orderInCategory="100"
+    android:title="Edit"
+    app:showAsAction="always" />
+
+    <item
+        android:id="@+id/sync"
+        android:orderInCategory="200"
+        android:title="Sync"
+        app:showAsAction="always" />
+</menu>

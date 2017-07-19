@@ -22,9 +22,6 @@ public class Items extends Model {
     @Column(name = "item_name")
     public String itemName;
 
-    @Column(name = "item_rate")
-    public double rate;
-
     public static List<Items> getAllItems(){
         return new Select().all().from(Items.class).execute();
     }

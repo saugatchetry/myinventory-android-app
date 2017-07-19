@@ -7,8 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -33,28 +31,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.Items;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
-import static zakoi.com.myinventory.SignInActivity.MyPREFERENCES;
-import static zakoi.com.myinventory.SignInActivity.Name;
-import static zakoi.com.myinventory.model.Items.getAllItems;
-
 public class ReceiptEntry extends AppCompatActivity {
 
     Button btnSubmitReceipt,dateEditButton;
-    EditText et_customerName,et_customerPhoneNumber,et_itemName,et_itemQuantity,et_itemRate;
+    EditText et_customerName,et_customerPhoneNumber,et_itemName,et_itemQuantity, et_itemAmount;
     TextView tv_date,tv_itemUOM;
 
     AutoCompleteTextView actv_itemName;
@@ -96,10 +88,10 @@ public class ReceiptEntry extends AppCompatActivity {
         String customerPhoneNumber = et_customerPhoneNumber.getText().toString();
         String itemName = actv_itemName.getText().toString();
         String quantity = et_itemQuantity.getText().toString();
-        String rate = et_itemRate.getText().toString();
+        String amount = et_itemAmount.getText().toString();
 
         if(date.equals("")||customerName.equals("")||
-                itemName.equals("")||quantity.equals("")||rate.equals("")){
+                itemName.equals("")||quantity.equals("")||amount.equals("")){
             btnSubmitReceipt.setEnabled(false);
         }
         else{
@@ -108,7 +100,7 @@ public class ReceiptEntry extends AppCompatActivity {
     }
 
 
-    double selectedItemRate;
+    double selectedItemAmount;
 
     String itemUOM;
 
@@ -164,7 +156,7 @@ public class ReceiptEntry extends AppCompatActivity {
         if(customerTableExists) {
             allCustomer = CustomerInfo.getAllCustomerInfo();
             for(CustomerInfo i : allCustomer){
-                Log.d("Saved Data","item name "+i.customerName+" rate "+i.customerPhoneNumber);
+                Log.d("Saved Data","item name "+i.customerName+" phone number "+i.customerPhoneNumber);
             }
         }
         /*
@@ -226,13 +218,13 @@ public class ReceiptEntry extends AppCompatActivity {
         actv_itemName = (AutoCompleteTextView) findViewById(R.id.itemNameText1);
 
         et_itemQuantity = (EditText) findViewById(R.id.quantityText);
-        et_itemRate = (EditText) findViewById(R.id.rateText);
+        et_itemAmount = (EditText) findViewById(R.id.amountText);
         btnSubmitReceipt = (Button) findViewById(R.id.submitReceiptButton);
 
         //textwatcher to enable submit button
         et_customerName.addTextChangedListener(mTextWatcher);
         et_itemQuantity.addTextChangedListener(mTextWatcher);
-        et_itemRate.addTextChangedListener(mTextWatcher);
+        et_itemAmount.addTextChangedListener(mTextWatcher);
         //et_customerPhoneNumber.addTextChangedListener(mTextWatcher);
         tv_date.addTextChangedListener(mTextWatcher);
 
@@ -257,7 +249,6 @@ public class ReceiptEntry extends AppCompatActivity {
                 Log.d("Selected","item selected - "+itemNameSelected);
                 for(Items itm : allItems){
                     if(itm.itemName.equalsIgnoreCase(itemNameSelected)){
-                        selectedItemRate = itm.rate;
                         itemUOM = itm.uom;
                     }
                 }
@@ -266,7 +257,7 @@ public class ReceiptEntry extends AppCompatActivity {
 //                String quant = et_itemQuantity.getText().toString();
 //
 //                if(!quant.equalsIgnoreCase("")){
-//                    et_itemRate.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemRate);
+//                    et_itemAmount.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemAmount);
 //                }
                 checkIfAllFieldAreFilled();
             }
@@ -290,7 +281,7 @@ public class ReceiptEntry extends AppCompatActivity {
 //
 //            @Override
 //            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                et_itemRate.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemRate);
+//                et_itemAmount.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemAmount);
 //            }
 //
 //            @Override
@@ -308,12 +299,12 @@ public class ReceiptEntry extends AppCompatActivity {
                 String itemQuantity = et_itemQuantity.getText().toString();
                 String customerName = et_customerName.getText().toString();
                 String customerPhoneNumber = et_customerPhoneNumber.getText().toString();
-                String itemRate = et_itemRate.getText().toString();
+                String itemAmount = et_itemAmount.getText().toString();
                 double quantity = Double.parseDouble(itemQuantity);
-                double rate = Double.parseDouble(itemRate);
+                double amount = Double.parseDouble(itemAmount);
                 int canEdit = 1;
                 int synced = 0;
-                saveReceiptToDB(customerName,customerPhoneNumber,itemName,quantity,rate,canEdit,date,synced);
+                saveReceiptToDB(customerName,customerPhoneNumber,itemName,quantity,amount,canEdit,date,synced);
                 Log.d("Date","Date is - "+tv_date.getText().toString());
                 clearForm();
 
@@ -324,19 +315,19 @@ public class ReceiptEntry extends AppCompatActivity {
 
     private void clearForm() {
         et_customerPhoneNumber.setText("");
-        et_itemRate.setText("");
+        et_itemAmount.setText("");
         actv_itemName.setText("");
         et_itemQuantity.setText("");
         tv_itemUOM.setText("");
     }
 
 
-    private void saveReceiptToDB(String customerName, String customerPhoneNumber, String itemName, double quantity, double rate,int canEdit,String date, int synced) {
+    private void saveReceiptToDB(String customerName, String customerPhoneNumber, String itemName, double quantity, double amount,int canEdit,String date, int synced) {
 
         ItemReceipt itemReceipt = new ItemReceipt();
         itemReceipt.itemName = itemName;
         itemReceipt.quantity = quantity;
-        itemReceipt.rate = rate;
+        itemReceipt.amount = amount;
         itemReceipt.customerName = customerName;
         itemReceipt.customerPhoneNumber = customerPhoneNumber;
         itemReceipt.editable = canEdit;
@@ -358,7 +349,7 @@ public class ReceiptEntry extends AppCompatActivity {
             receipts.setCustomerName(ir.customerName);
             receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
             receipts.setQuantity(ir.quantity);
-            receipts.setRate(ir.rate);
+            receipts.setAmount(ir.amount);
             receipts.setReceiptDate(ir.receiptDate);
             receipts.setReceiptOutletName(storeName);
             receiptList.add(receipts);
@@ -368,7 +359,7 @@ public class ReceiptEntry extends AppCompatActivity {
 
         Retrofit.Builder builder = new Retrofit.Builder()
                 //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl("https://myinventory-test.herokuapp.com/")
+                .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create());
         Retrofit retrofit = builder.build();
 

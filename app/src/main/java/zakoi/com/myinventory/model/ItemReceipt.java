@@ -24,8 +24,8 @@ public class ItemReceipt extends Model {
     @Column(name="quantity")
     public double quantity;
 
-    @Column(name="rate")
-    public double rate;
+    @Column(name="amount")
+    public double amount;
 
     @Column(name="customer_name")
     public String customerName;

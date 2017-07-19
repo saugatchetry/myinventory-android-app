@@ -61,12 +61,12 @@
                             android:layout_height="wrap_content"
                             android:padding="4dp"
                             android:textSize="10sp"
-                            android:text="Phone Number"/>
+                            android:text="Quantity"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
-                            android:id="@+id/customerPhoneNumber"
+                            android:id="@+id/itemQuantity"
                             android:text="HELLO WORLD"/>
 
                     </LinearLayout>
@@ -109,13 +109,13 @@
                             android:layout_height="wrap_content"
                             android:padding="4dp"
                             android:textSize="10sp"
-                            android:text="Quantity"/>
+                            android:text="Amount"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
                             android:padding="4dp"
-                            android:id="@+id/itemQuantity"
+                            android:id="@+id/itemAmount"
                             android:text="HELLO WORLD"/>
 
                     </LinearLayout>
@@ -127,10 +127,10 @@
                     android:layout_weight="0.4">
 
                     <Button
-                        android:id="@+id/confirmButton"
+                        android:id="@+id/editReceiptButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="Confirm"
+                        android:text="Edit"
                         android:textSize="10sp"
                         android:background="#66ff99"
                         android:padding="4dp"/>

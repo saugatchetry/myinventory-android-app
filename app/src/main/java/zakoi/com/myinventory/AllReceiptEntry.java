@@ -51,7 +51,7 @@ public class AllReceiptEntry extends AppCompatActivity implements OnQueryTextLis
         for(ItemReceipt i : allEditableReceipts){
             Log.d("Id","ids = "+i.getId());
 
-            editData.add(new EditReceiptModel(i.getId(),i.customerName,i.customerPhoneNumber,i.itemName,i.receiptDate,i.quantity,i.rate));
+            editData.add(new EditReceiptModel(i.getId(),i.customerName,i.customerPhoneNumber,i.itemName,i.receiptDate,i.quantity,i.amount));
         }
 
         /*editData.add(new EditReceiptModel("Saugat","12345","Potato",12.2));

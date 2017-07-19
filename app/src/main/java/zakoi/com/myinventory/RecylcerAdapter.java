@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
         holder.tv_customerName.setText(arrayList.get(position).getCustomerName());
-        holder.tv_customerPhoneNumber.setText(arrayList.get(position).getCustomerPhoneNumber());
+        holder.tv_itemAmount.setText("" +arrayList.get(position).getAmount());
         holder.tv_itemName.setText(arrayList.get(position).getItemName());
         String quantity = ""+arrayList.get(position).getItemQuantity();
         holder.tv_itemQuantity.setText(quantity);
@@ -52,9 +53,10 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
     }
 
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView tv_customerName,tv_customerPhoneNumber,tv_itemName,tv_itemQuantity;
+        TextView tv_customerName, tv_itemAmount,tv_itemName,tv_itemQuantity;
+        Button tv_editButton;
 
         Context ctx;
         ArrayList<EditReceiptModel> data = new ArrayList<>();
@@ -62,24 +64,27 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
         public MyViewHolder(View itemView,Context ctx,ArrayList<EditReceiptModel> data) {
             super(itemView);
 
-            itemView.setOnClickListener(this);
-
             tv_customerName = (TextView) itemView.findViewById(R.id.customerName);
-            tv_customerPhoneNumber = (TextView) itemView.findViewById(R.id.customerPhoneNumber);
+            tv_itemAmount = (TextView) itemView.findViewById(R.id.itemAmount);
             tv_itemName = (TextView) itemView.findViewById(R.id.itemName);
             tv_itemQuantity = (TextView) itemView.findViewById(R.id.itemQuantity);
+            tv_editButton = (Button) itemView.findViewById(R.id.editReceiptButton);
 
+            tv_editButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    performEdit(v);
+                }
+            });
             this.ctx = ctx;
             this.data = data;
 
         }
 
-        @Override
-        public void onClick(View view) {
+        private void performEdit(View view) {
             Log.d("Click","clicked");
             int position = getAdapterPosition();
             EditReceiptModel model = this.data.get(position);
-            Log.d("Ids","rate - "+model.getRate());
+            Log.d("Ids","rate - "+model.getAmount());
             Intent intent = new Intent(this.ctx,EditActivity.class);
 
             intent.putExtra("id",model.getId());
@@ -88,7 +93,7 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
             intent.putExtra("itemName",model.getItemName());
             intent.putExtra("quantity",""+model.getItemQuantity());
             intent.putExtra("date",model.getDate());
-            intent.putExtra("rate",""+model.getRate());
+            intent.putExtra("amount",""+model.getAmount());
             this.ctx.startActivity(intent);
 
 

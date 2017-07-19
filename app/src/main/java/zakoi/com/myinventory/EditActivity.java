@@ -4,14 +4,9 @@ import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -20,18 +15,13 @@ import android.widget.Toast;
 
 import com.activeandroid.query.Update;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
-import zakoi.com.myinventory.model.EditReceiptModel;
 import zakoi.com.myinventory.model.ItemReceipt;
-
-import static android.R.attr.id;
-import static zakoi.com.myinventory.R.id.dateEditButton;
 
 public class EditActivity extends AppCompatActivity {
 
-    EditText et_dateText,et_customerName,et_customerPhoneNumber,et_itemName,et_quantity,et_rate;
+    EditText et_dateText,et_customerName,et_customerPhoneNumber,et_itemName,et_quantity, et_amount;
     DatePickerDialog.OnDateSetListener mDateSetListener;
 
     Button btn_save;
@@ -52,7 +42,7 @@ public class EditActivity extends AppCompatActivity {
 
         et_itemName = (EditText) findViewById(R.id.itemNameText);
         et_quantity = (EditText) findViewById(R.id.quantityText);
-        et_rate = (EditText) findViewById(R.id.rateText);
+        et_amount = (EditText) findViewById(R.id.amountText);
 
 
         id = getIntent().getLongExtra("id",0);
@@ -62,7 +52,7 @@ public class EditActivity extends AppCompatActivity {
         et_customerPhoneNumber.setText(getIntent().getStringExtra("customerPhoneNumber"));
         et_itemName.setText(getIntent().getStringExtra("itemName"));
         et_quantity.setText(getIntent().getStringExtra("quantity"));
-        et_rate.setText(getIntent().getStringExtra("rate"));
+        et_amount.setText(getIntent().getStringExtra("amount"));
 
         btn_save = (Button) findViewById(R.id.submitReceiptButton);
 
@@ -104,10 +94,10 @@ public class EditActivity extends AppCompatActivity {
                                " customer_phone_number = ? ," +
                                " item_name = ? ," +
                                " quantity = ? ,"+
-                               " rate = ? ";
+                               " amount = ? ";
             @Override
             public void onClick(View view) {
-                /*new Update(ItemReceipt.class).set(updateSet,date,customerName,customerPhone,itemName,quantity,rate)
+                /*new Update(ItemReceipt.class).set(updateSet,date,customerName,customerPhone,itemName,quantity,amount)
                         .where("Id = ?",id)
                         .execute();*/
 
@@ -116,12 +106,12 @@ public class EditActivity extends AppCompatActivity {
                 String itemName = et_itemName.getText().toString();
                 String customerPhone = et_customerPhoneNumber.getText().toString();
                 double quantity = Double.parseDouble(et_quantity.getText().toString());
-                double rate = Double.parseDouble(et_rate.getText().toString());
+                double amount = Double.parseDouble(et_amount.getText().toString());
 
                 Log.d("Update","id = "+id+" customer number = "+customerPhone);
 
 
-                new Update(ItemReceipt.class).set(updateSet,date,customerName,customerPhone,itemName,quantity,rate)
+                new Update(ItemReceipt.class).set(updateSet,date,customerName,customerPhone,itemName,quantity, amount)
                         .where("Id = ?",id)
                         .execute();
 

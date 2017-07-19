@@ -30,6 +30,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.Vendors;
 
@@ -88,7 +89,7 @@ public class SignInActivity extends AppCompatActivity {
                 Gson gson = builder.create();
                 Retrofit.Builder builder1 = new Retrofit.Builder()
                         //.baseUrl("http://10.0.2.2:8080/")
-                        .baseUrl("https://myinventory-test.herokuapp.com/")
+                        .baseUrl(Config.SERVER_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson));
                 Retrofit retrofit = builder1.build();
 
@@ -98,7 +99,7 @@ public class SignInActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
 
-
+                            Log.d("Tag", "Response " + response.body().toString());
                             saveItemsToDB(response.body());
 
                     }
@@ -149,7 +150,6 @@ public class SignInActivity extends AppCompatActivity {
         for(Items items : body){
             Items i = new Items();
             i.itemName = items.itemName;
-            i.rate = items.rate;
             i.uom = items.uom;
             i.save();
         }

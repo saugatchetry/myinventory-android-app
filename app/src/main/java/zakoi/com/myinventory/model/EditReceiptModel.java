@@ -12,12 +12,12 @@ public class EditReceiptModel {
     String itemName;
     String date;
     double itemQuantity;
-    double rate;
+    double amount;
 
 
 
 
-    public EditReceiptModel(Long id,String customerName, String customerPhoneNumber, String itemName, String date, double itemQuantity, double rate) {
+    public EditReceiptModel(Long id,String customerName, String customerPhoneNumber, String itemName, String date, double itemQuantity, double amount) {
 
         this.id = id;
         this.customerName = customerName;
@@ -25,7 +25,7 @@ public class EditReceiptModel {
         this.itemName = itemName;
         this.date = date;
         this.itemQuantity = itemQuantity;
-        this.rate = rate;
+        this.amount = amount;
 
     }
 
@@ -45,12 +45,12 @@ public class EditReceiptModel {
         this.date = date;
     }
 
-    public double getRate() {
-        return rate;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setRate(double rate) {
-        this.rate = rate;
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getCustomerName() {

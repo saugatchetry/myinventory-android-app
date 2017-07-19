@@ -32,21 +32,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.jar.Manifest;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.model.ItemReceipt;
-import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
 
-import static android.R.attr.button;
-import static android.R.attr.switchMinWidth;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static zakoi.com.myinventory.R.id.stockTransfer;
 
 public class SelectTask extends AppCompatActivity implements View.OnClickListener{
@@ -206,7 +202,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         Gson gson = builder.create();
         Retrofit.Builder builder1 = new Retrofit.Builder()
                 //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl("https://myinventory-test.herokuapp.com/")
+                .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder1.build();
 
@@ -300,7 +296,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
         Retrofit.Builder builder = new Retrofit.Builder()
                 //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl("https://myinventory-test.herokuapp.com/")
+                .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create());
         Retrofit retrofit = builder.build();
 
@@ -341,7 +337,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         Gson gson = builder.create();
         Retrofit.Builder builder1 = new Retrofit.Builder()
                 //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl("https://myinventory-test.herokuapp.com/")
+                .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder1.build();
 
@@ -381,7 +377,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 receipts.setCustomerName(ir.customerName);
                 receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
                 receipts.setQuantity(ir.quantity);
-                receipts.setRate(ir.rate);
+                receipts.setAmount(ir.amount);
                 receipts.setReceiptDate(ir.receiptDate);
                 receipts.setReceiptOutletName(storeName);
                 receiptList.add(receipts);
@@ -393,7 +389,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
             Retrofit.Builder builder = new Retrofit.Builder()
                     //.baseUrl("http://10.0.2.2:8080/")
-                    .baseUrl("https://myinventory-test.herokuapp.com/")
+                    .baseUrl(Config.SERVER_URL)
                     .addConverterFactory(GsonConverterFactory.create());
             Retrofit retrofit = builder.build();
 
@@ -432,7 +428,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         List<ItemReceipt> allReceipts = ItemReceipt.getAllEditableReceipts();
         double totalCash = 0.0;
         for(ItemReceipt ir : allReceipts){
-            totalCash = totalCash + ir.rate;
+            totalCash = totalCash + ir.amount;
         }
 
         sendSMS(totalCash);

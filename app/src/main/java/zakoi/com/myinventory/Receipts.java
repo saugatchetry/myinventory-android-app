@@ -11,7 +11,7 @@ public class Receipts {
     private String customerPhoneNumber;
     private String itemName;
     private double quantity;
-    private double rate;
+    private double amount;
     private String receiptDate;
 
     public String getReceiptDate() {
@@ -30,12 +30,12 @@ public class Receipts {
         this.receiptOutletName = receiptOutletName;
     }
 
-    public double getRate() {
-        return rate;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setRate(double rate) {
-        this.rate = rate;
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getCustomerName() {

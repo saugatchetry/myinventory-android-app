@@ -191,7 +191,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/rate"
+        android:id="@+id/amount"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -199,10 +199,10 @@
 
         <TextView
 
-            android:text="Rate"
+            android:text="Amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rateLabel" />
+            android:id="@+id/amountLabel" />
 
         <EditText
             android:layout_width="match_parent"
@@ -210,10 +210,10 @@
             android:inputType="numberDecimal"
             android:background="@drawable/round"
             android:padding="8dp"
-            android:hint="Rate"
-            android:layout_below="@+id/rateLabel"
+            android:hint="Amount"
+            android:layout_below="@+id/amountLabel"
             android:ems="10"
-            android:id="@+id/rateText" />
+            android:id="@+id/amountText" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -221,7 +221,7 @@
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rate">
+        android:layout_below="@+id/amount">
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

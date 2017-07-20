@@ -341,47 +341,47 @@ public class ReceiptEntry extends AppCompatActivity {
 
     private void sendDataToServer() {
 
-        List<ItemReceipt> savedReceipts = ItemReceipt.getAllUnsyncedReceipts();
-        List<Receipts> receiptList = new ArrayList<>();
-        for(ItemReceipt ir : savedReceipts) {
-            Receipts receipts = new Receipts();
-            receipts.setItemName(ir.itemName);
-            receipts.setCustomerName(ir.customerName);
-            receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
-            receipts.setQuantity(ir.quantity);
-            receipts.setAmount(ir.amount);
-            receipts.setReceiptDate(ir.receiptDate);
-            receipts.setReceiptOutletName(storeName);
-            receiptList.add(receipts);
-        }
-
-        Log.d("Editable","size of receipts - "+receiptList.size());
-
-        Retrofit.Builder builder = new Retrofit.Builder()
-                //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl(Config.SERVER_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-        Retrofit retrofit = builder.build();
-
-        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-
-        Call<Void> call = receiptClient.submitReceipt(receiptList);
-
-        call.enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) {
-
-                Toast.makeText(ReceiptEntry.this,"Submitted",Toast.LENGTH_SHORT).show();
-                updateAllSubmittedReceipts();
-
-            }
-
-            @Override
-            public void onFailure(Call call, Throwable t) {
-                Log.d("Sync","Error :- "+t.getMessage());
-                Toast.makeText(ReceiptEntry.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
+//        List<ItemReceipt> savedReceipts = ItemReceipt.getAllUnsyncedReceipts();
+//        List<Receipts> receiptList = new ArrayList<>();
+//        for(ItemReceipt ir : savedReceipts) {
+//            Receipts receipts = new Receipts();
+//            receipts.setItemName(ir.itemName);
+//            receipts.setCustomerName(ir.customerName);
+//            receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
+//            receipts.setQuantity(ir.quantity);
+//            receipts.setAmount(ir.amount);
+//            receipts.setReceiptDate(ir.receiptDate);
+//            receipts.setReceiptOutletName(storeName);
+//            receiptList.add(receipts);
+//        }
+//
+//        Log.d("Editable","size of receipts - "+receiptList.size());
+//
+//        Retrofit.Builder builder = new Retrofit.Builder()
+//                //.baseUrl("http://10.0.2.2:8080/")
+//                .baseUrl(Config.SERVER_URL)
+//                .addConverterFactory(GsonConverterFactory.create());
+//        Retrofit retrofit = builder.build();
+//
+//        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
+//
+//        Call<Void> call = receiptClient.submitReceipt(receiptList);
+//
+//        call.enqueue(new Callback() {
+//            @Override
+//            public void onResponse(Call call, Response response) {
+//
+//                Toast.makeText(ReceiptEntry.this,"Submitted",Toast.LENGTH_SHORT).show();
+//                updateAllSubmittedReceipts();
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call call, Throwable t) {
+//                Log.d("Sync","Error :- "+t.getMessage());
+//                Toast.makeText(ReceiptEntry.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
 

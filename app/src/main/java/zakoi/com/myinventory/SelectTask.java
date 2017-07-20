@@ -39,6 +39,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.Util;
 import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
@@ -54,10 +55,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     AlertDialog alertDialog,downloadingDialog, syncingDataDialog;
 
     SharedPreferences sharedpreferences;
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String Name = "nameKey";
     String storeName;
-
     String sent= "sms sent";
     String delivered = "sms delivered";
 
@@ -67,14 +65,14 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("1", "cow created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_task);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
-        storeName = sharedpreferences.getString(Name,"default");
+        sharedpreferences = getSharedPreferences(Config.SHARED_PREF_STORE, Context.MODE_PRIVATE);
+        storeName = sharedpreferences.getString(Config.P_STORE_KEY,"default");
 
         btn_checkOut = (Button) findViewById(R.id.checkOut);
         btn_saveReceipts = (Button) findViewById(R.id.saveEntry);
@@ -102,8 +100,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
         AlertDialog.Builder downloadingAlertDialogBuilder = new AlertDialog.Builder(this);
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
-
-
         downloadingDialog = downloadingAlertDialogBuilder.create();
         downloadingDialog.show();
 
@@ -207,7 +203,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         Retrofit retrofit = builder1.build();
 
         ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-        Call<List<StockTransfer>> call = receiptClient.getAllStockTransfers("shantanu");
+        Call<List<StockTransfer>> call = receiptClient.getAllStockTransfers(storeName);
         call.enqueue(new Callback<List<StockTransfer>>() {
             @Override
             public void onResponse(Call<List<StockTransfer>> call, Response<List<StockTransfer>> response) {
@@ -227,7 +223,10 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     }
 
     private void saveStockTransferDataToTable(List<StockTransfer> body) {
-
+        if(body == null) {
+            Log.d("SelectTask", "Save stock trasfer table returned null");
+            return;
+        }
         for(StockTransfer st : body){
             if(!stockIds.contains(st.transferId)) {
                 StockTransfer stockTransfer = new StockTransfer();
@@ -378,7 +377,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
                 receipts.setQuantity(ir.quantity);
                 receipts.setAmount(ir.amount);
-                receipts.setReceiptDate(ir.receiptDate);
+                receipts.setReceiptDate(Util.ChangeDateFormat(ir.receiptDate));
                 receipts.setReceiptOutletName(storeName);
                 receiptList.add(receipts);
 
@@ -443,9 +442,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
         Log.d("date","date = "+date);
 
-        String message = "Time Staamp - "+date
-                        +"\nStore Name - "+storeName
-                        +"\nTotal cash - "+totalCash;
+        String message = "Date - " + date
+                        +"\nStore Name - " + storeName
+                        +"\nTotal cash - " + totalCash;
 
         if(ContextCompat.checkSelfPermission(SelectTask.this, android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(SelectTask.this,new String[]{android.Manifest.permission.SEND_SMS},MY_PREMISSON_REQUEST_SEND_SMS);

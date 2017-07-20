@@ -45,10 +45,8 @@ public class NetworkManager {
         return instance;
     }
 
-
     public void sendRequest(NetworkInterface instance, API api) {
         Log.d(Tag, "Sending request");
     }
-
 
 }

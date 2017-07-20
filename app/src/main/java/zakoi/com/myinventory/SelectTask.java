@@ -66,7 +66,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     String storeName;
     String sent= "sms sent";
     String delivered = "sms delivered";
-
+    String timeStamp = "";
     PendingIntent sentPI,deliveredPI;
 
     BroadcastReceiver smsSentReceiver, smsDeliveredReceiver;
@@ -118,9 +118,14 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     @Override
     protected void onResume(){
+
         super.onResume();
 
-        CheckForNewItems();
+        ToastManager.getInstance().Reset();
+        if(NetworkManager.CallGetItems()) { {
+            CheckForNewItems();
+        }}
+
         smsSentReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -224,7 +229,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 Log.e("Error","Failed baba Network call failed because - "+t.getLocalizedMessage());
                 downloadingDialog.dismiss();
                 _toast.DismissToast();
-
+                OnError(t);
             }
         });
     }
@@ -326,8 +331,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             public void onFailure(Call call, Throwable t) {
                 downloadingDialog.dismiss();
                 _toast.DismissToast();
-                Log.d("Sync","Error :- "+t.getMessage());
-                Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+                OnError(t);
             }
         });
 
@@ -363,8 +367,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             public void onFailure(Call call, Throwable t) {
                 downloadingDialog.dismiss();
                 _toast.DismissToast();
-                Log.d("Sync","Error :- "+t.getMessage());
-                Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+                OnError(t);
             }
         });
 
@@ -419,8 +422,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 public void onFailure(Call call, Throwable t) {
                     downloadingDialog.dismiss();
                     _toast.DismissToast();
-                    Log.d("Sync","Error :- "+t.getMessage());
-                    Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+                    OnError(t);
                 }
             });
     }
@@ -474,11 +476,17 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 String currentTimeStamp = "";
                 try {
-                    currentTimeStamp = response.body().string();
+                    if(response != null && response.body() != null)
+                        currentTimeStamp = response.body().string();
+                    else {
+                        OnError("Could not connect ");
+                        return;
+                    }
                 } catch (IOException e) {
                     Log.e("SelectTask","Error on processing timestamp");
                     return;
                 }
+
                 CheckTimeStamp(currentTimeStamp);
             }
 
@@ -491,41 +499,73 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     void OnError(Throwable t) {
         Log.d("Sync","Error :- "+t.getMessage());
-        Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+        _toast.ShowError(SelectTask.this, "Failed Reason :- "+t.getLocalizedMessage());
+//        Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_LONG).show();
 
     }
 
+    void OnError(String message) {
+        _toast.ShowError(SelectTask.this, message);
+    }
+
     void CheckTimeStamp(final String currentTimeStamp) {
+
         String timeStamp = sharedpreferences.getString(Config.P_TIME_STAMP,"default");
 
         if (timeStamp.equals(currentTimeStamp)) {
             return;
         }
 
-        boolean itemTableExists = new Select()
-                .from(Items.class)
-                .exists();
+        timeStamp = currentTimeStamp;
 
-        final HashSet<Items> items_set = (itemTableExists) ? new HashSet<Items>(Items.getAllItems()) : new HashSet<Items>();
+//        boolean itemTableExists = new Select()
+//                .from(Items.class)
+//                .exists();
+
         Call<List<Items>> call = NetworkManager.getInstance().client.getAllStoreItems(storeName);
-
         call.enqueue(new Callback<List<Items>>() {
             @Override
             public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
                 List<Items> new_items_list = response.body();
-                new_items_list.removeAll(items_set);
-                Util.saveItemsToDB(new_items_list);
-
-                // Update Timestamp
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.putString(Config.P_TIME_STAMP, currentTimeStamp);
-                editor.commit();
+                AddItemsToDB(new_items_list);
             }
 
             @Override
             public void onFailure(Call<List<Items>> call, Throwable t) {
-                Log.e("Error","Network call failed because - "+t.getLocalizedMessage());
+                OnError(t);
             }
         });
     }
+
+    private void AddItemsToDB(List<Items> new_items_list) {
+        final HashSet<String> items_set = GetItemSet(Items.getAllItems());
+        new_items_list = FilterExistingItems(new_items_list, items_set);
+        Util.saveItemsToDB(new_items_list);
+
+        // Update Timestamp
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(Config.P_TIME_STAMP, timeStamp);
+        editor.commit();
+    }
+
+    private HashSet<String> GetItemSet(List<Items> item_list) {
+        HashSet<String> return_array =  new HashSet<String>();
+
+        for(Items item : item_list) {
+            return_array.add(item.itemName);
+        }
+        return return_array;
+    }
+
+    private List<Items> FilterExistingItems(List<Items> item_list, HashSet<String> exists_set) {
+        List<Items> return_list = new ArrayList<>();
+
+        for(Items item : item_list) {
+            if(!exists_set.contains(item.itemName))
+                return_list.add(item);
+        }
+        return return_list;
+    }
+
+
 }

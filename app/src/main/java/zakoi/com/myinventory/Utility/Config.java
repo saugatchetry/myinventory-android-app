@@ -8,8 +8,9 @@ import java.util.Date;
 
 public class Config {
     //Server
-    // public static final String SERVER_URL = "https://0c4e36eb.ngrok.io";
+//     public static final String SERVER_URL = "https://0c4e36eb.ngrok.io";
     public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
+
 
     //Shared Pref
     public static final String SHARED_PREF_STORE = "MyPrefs" ;
@@ -18,4 +19,10 @@ public class Config {
 
     //Intent String Constants
     public static final String I_VENDOR_LIST = "vendor_list";
+
+    //Date time
+    public static final int TIME_INTERVAL = 1;
+    public static final int SPLASH_DISPLAY_LENGTH = 2000;
+
+
 }

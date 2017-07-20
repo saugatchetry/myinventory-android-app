@@ -12,33 +12,59 @@ import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 
 public class ToastManager {
 
+    private enum Type {
+        error,
+        sync,
+        submit
+    }
+
+    private Type _type;
+    private String _message;
+    private Context _context;
     private static ToastManager instance = null;
 
-    private ToastManager() {}
     public SuperActivityToast current;
+
+
+    public ToastManager() {
+        _type = Type.error;
+        _message = "";
+        _context = null;
+    }
 
     public static ToastManager getInstance() {
         if (instance != null) {
             return instance;
         }
+
         instance = new ToastManager();
         return instance;
     }
 
     public SuperActivityToast ShowSyncToast(Context context) {
+        // For syncing purposes
+        if (isSameToast(context, Type.sync, _message)) {
+            return current;
+        }
 
-            current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
-            current.setText("Syncing With Server");
-            current.setIndeterminate(true);
-            current.setProgressIndeterminate(true);
-            current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_PINK));
-            current.show();
+        DismissToast();
 
+        current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
+        current.setText("Syncing With Server");
+        current.setIndeterminate(true);
+        current.setProgressIndeterminate(true);
+        current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_PINK));
+        current.show();
         return current;
     }
 
     public SuperActivityToast ShowSubmitted(Context context, String msg) {
+        // For syncing purposes
+        if (isSameToast(context, Type.submit, msg)) {
+            return current;
+        }
 
+        DismissToast();
         current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
         current.setText(msg);
         current.setDuration(Style.DURATION_MEDIUM);
@@ -50,9 +76,55 @@ public class ToastManager {
         return current;
     }
 
-    public void DismissToast() {
-        current.dismiss();
+    public SuperActivityToast ShowError(final Context context, final String message) {
+        return ShowError(context, message, Style.TYPE_STANDARD, Style.FRAME_LOLLIPOP);
     }
+
+    public SuperActivityToast ShowError(final Context context, final String message, final int frameType) {
+        return ShowError(context, message, Style.TYPE_STANDARD, frameType);
+    }
+
+    public SuperActivityToast ShowError(final Context context, final String message, final int type, final int frameType) {
+        // For syncing purposes
+        if (isSameToast(context, Type.error, message)) {
+            return current;
+        }
+
+        DismissToast();
+        current = new SuperActivityToast(context, type);
+        current.setText("   " + message);
+        current.setIconResource(android.R.drawable.stat_notify_error);
+        current.setAnimations(Style.ANIMATIONS_FADE);
+        current.setDuration(Style.DURATION_SHORT);
+        current.setFrame(frameType);
+        current.setAnimations(Style.ANIMATIONS_FADE);
+        current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED));
+        current.show();
+        return current;
+    }
+
+    private Boolean isSameToast(Context context, Type type, String message) {
+
+        if (type == _type && message.equals(_message) && _context == context) {
+            return false;
+        }
+
+        _context = context;
+        _type = type;
+        _message = message;
+        return false;
+    }
+
+    public void Reset() {
+        _context = null;
+    }
+
+    public void DismissToast() {
+        if(current != null)
+            current.dismiss();
+    }
+
+
 
 
 }

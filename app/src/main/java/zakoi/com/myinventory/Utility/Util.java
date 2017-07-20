@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import zakoi.com.myinventory.model.Items;
 
@@ -34,6 +35,10 @@ public class Util {
             i.uom = items.uom;
             i.save();
         }
+    }
+
+    public static long getElapsedMins(Date now, Date before) {
+        return TimeUnit.MILLISECONDS.toMinutes(now.getTime() - before.getTime());
     }
 
 }

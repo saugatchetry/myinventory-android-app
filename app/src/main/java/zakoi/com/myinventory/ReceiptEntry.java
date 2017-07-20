@@ -397,9 +397,15 @@ public class ReceiptEntry extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ToastManager.getInstance().DismissToast();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
-        ToastManager.getInstance().DismissToast();
+
     }
 
 

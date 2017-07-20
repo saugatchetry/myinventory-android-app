@@ -1,6 +1,8 @@
 package zakoi.com.myinventory;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -120,6 +122,10 @@ public class EditActivity extends AppCompatActivity {
                         .execute();*/
 
                 Toast.makeText(EditActivity.this,"Done",Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent();
+                setResult(Activity.RESULT_OK,intent);
+                finish();
             }
         });
 

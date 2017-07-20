@@ -1,5 +1,6 @@
 package zakoi.com.myinventory;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -67,6 +68,24 @@ public class AllReceiptEntry extends AppCompatActivity implements OnQueryTextLis
         adapter = new RecylcerAdapter(editData,this);
         recyclerView.setAdapter(adapter);
 
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        List<ItemReceipt> allEditableReceipts = new ArrayList<>();
+
+        allEditableReceipts = ItemReceipt.getAllEditableReceipts();
+        editData.clear();
+        for(ItemReceipt i : allEditableReceipts){
+            Log.d("Id","ids = "+i.getId());
+
+            editData.add(new EditReceiptModel(i.getId(),i.customerName,i.customerPhoneNumber,i.itemName,i.receiptDate,i.quantity,i.amount));
+        }
+
+        adapter.setFilter(editData);
+        //adapter.onActivityResult(editData);
     }
 
     @Override

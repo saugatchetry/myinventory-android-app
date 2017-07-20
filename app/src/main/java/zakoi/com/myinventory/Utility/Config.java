@@ -8,8 +8,8 @@ import java.util.Date;
 
 public class Config {
     //Server
-    public static final String SERVER_URL = "https://0c4e36eb.ngrok.io";
-//    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
+    //public static final String SERVER_URL = "https://0c4e36eb.ngrok.io";
+    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
 
     //Shared Pref
     public static final String SHARED_PREF_STORE = "MyPrefs" ;

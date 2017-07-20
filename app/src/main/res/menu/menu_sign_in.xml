@@ -8,9 +8,9 @@
     android:title="Edit"
     app:showAsAction="always" />
 
-    <item
-        android:id="@+id/sync"
-        android:orderInCategory="200"
-        android:title="Sync"
-        app:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/sync"-->
+        <!--android:orderInCategory="200"-->
+        <!--android:title="Sync"-->
+        <!--app:showAsAction="always" />-->
 </menu>

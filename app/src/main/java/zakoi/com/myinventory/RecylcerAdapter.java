@@ -1,5 +1,6 @@
 package zakoi.com.myinventory;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +31,6 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row1_layout,parent,false);
         return new MyViewHolder(view,ctx,arrayList);
     }
@@ -80,7 +80,7 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
 
         }
 
-        private void performEdit(View view) {
+        public void performEdit(View view) {
             Log.d("Click","clicked");
             int position = getAdapterPosition();
             EditReceiptModel model = this.data.get(position);
@@ -94,11 +94,22 @@ public class RecylcerAdapter extends RecyclerView.Adapter<RecylcerAdapter.MyView
             intent.putExtra("quantity",""+model.getItemQuantity());
             intent.putExtra("date",model.getDate());
             intent.putExtra("amount",""+model.getAmount());
-            this.ctx.startActivity(intent);
+            //this.ctx.startActivity(intent);
 
+            Activity origin = (Activity)ctx;
+            origin.startActivityForResult(intent,1000);
 
         }
     }
+
+
+    /*public void onActivityResult(ArrayList<EditReceiptModel> editData){
+        Log.d("OnActivityResult","Success");
+
+        this.arrayList = editData;
+        notifyDataSetChanged();
+    }*/
+
 
     public void setFilter(ArrayList<EditReceiptModel> newList){
         arrayList = new ArrayList<>();

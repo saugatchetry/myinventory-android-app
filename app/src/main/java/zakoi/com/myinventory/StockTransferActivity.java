@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.Utility.Util;
 import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
@@ -54,7 +56,6 @@ public class StockTransferActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         sharedpreferences = getSharedPreferences(Config.SHARED_PREF_STORE, Context.MODE_PRIVATE);
-
         storeName = sharedpreferences.getString(Config.P_STORE_KEY,"default");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -67,17 +68,18 @@ public class StockTransferActivity extends AppCompatActivity {
         List<String> vendorNames = new ArrayList<>();
 
         for(Vendors v : allVendors){
-            vendorNames.add(v.storeName);
+            if(!storeName.equalsIgnoreCase(v.storeName))
+                vendorNames.add(v.storeName);
         }
 
 
         //read the item table
         allItems = readTheItemTable();
 
-        List<String> itemNames = new ArrayList<>();
+        final List<String> itemNames_list = new ArrayList<>();
 
         for(Items i : allItems){
-            itemNames.add(i.itemName);
+            itemNames_list.add(i.itemName);
         }
 
 
@@ -95,7 +97,7 @@ public class StockTransferActivity extends AppCompatActivity {
 
         sp_vendorName.setAdapter(adapterVendor);
 
-        adapterItem = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,itemNames);
+        adapterItem = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,itemNames_list);
 
         sp_itemName.setAdapter(adapterItem);
 
@@ -112,10 +114,22 @@ public class StockTransferActivity extends AppCompatActivity {
                 ost.status = "Initiated";
                 ost.sync_cloud = 0;
 
-                ost.save();
+                if(!itemNames_list.contains(ost.itemName)) {
+                    sp_itemName.setError("Item Name does not exist");
+                    return;
+                }
 
-                Toast.makeText(StockTransferActivity.this,"Saved",Toast.LENGTH_SHORT).show();
+                ost.save();
+                ToastManager.getInstance().ShowSubmitted(StockTransferActivity.this,"Stock transfer submitterd for : " + ost.itemName);
+                //Toast.makeText(StockTransferActivity.this,"Saved",Toast.LENGTH_SHORT).show();
                 clearForm();
+
+                //Hide keyboard
+                View view1 = StockTransferActivity.this.getCurrentFocus();
+                if (view1 != null) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
 
             }
         });

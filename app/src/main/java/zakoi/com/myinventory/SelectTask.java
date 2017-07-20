@@ -98,11 +98,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         sentPI = PendingIntent.getBroadcast(this,0,new Intent(sent),0);
         deliveredPI = PendingIntent.getBroadcast(this,0,new Intent(delivered), 0);
 
-
-
-
-        getAllTransferStocks();
-
         AlertDialog.Builder downloadingAlertDialogBuilder = new AlertDialog.Builder(this);
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
         downloadingDialog = downloadingAlertDialogBuilder.create();
@@ -128,6 +123,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         }
 
         if(NetworkManager.CallGetItems()) { {
+            getAllTransferStocks();
             CheckForNewItems();
         }}
 

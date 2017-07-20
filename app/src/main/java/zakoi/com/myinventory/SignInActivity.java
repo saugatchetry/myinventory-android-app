@@ -34,6 +34,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.NetworkManager;
+import zakoi.com.myinventory.Utility.Util;
 import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.Vendors;
 
@@ -77,29 +79,22 @@ public class SignInActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences.Editor editor = sharedpreferences.edit();
+                String storeName = vendorName.getSelectedItem().toString();
 
-                editor.putString(Config.P_STORE_KEY, vendorName.getSelectedItem().toString());
-                String myvendorName = vendorName.getSelectedItem().toString();
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(Config.P_STORE_KEY, storeName);
+                editor.putString(Config.P_TIME_STAMP, "");
                 editor.commit();
+
                 Toast.makeText(SignInActivity.this,"Successful",Toast.LENGTH_LONG).show();
 
-                GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
-                Gson gson = builder.create();
-                Retrofit.Builder builder1 = new Retrofit.Builder()
-                        .baseUrl(Config.SERVER_URL)
-                        .addConverterFactory(GsonConverterFactory.create(gson));
-                Retrofit retrofit = builder1.build();
-
-                ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-                Call<List<Items>> call = receiptClient.getAllStoreItems(myvendorName);
+                ReceiptClient receiptClient = NetworkManager.getInstance().client;
+                Call<List<Items>> call = receiptClient.getAllStoreItems(storeName);
                 call.enqueue(new Callback<List<Items>>() {
                     @Override
                     public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
-
-                            Log.d("Tag", "Response " + response.body().toString());
-                            saveItemsToDB(response.body());
-
+                        Log.d("Tag", "Response " + response.body().toString());
+                        saveItemsToDB(response.body());
                     }
 
                     @Override
@@ -113,14 +108,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void saveItemsToDB(List<Items> body) {
-
-        for(Items items : body){
-            Items i = new Items();
-            i.itemName = items.itemName;
-            i.uom = items.uom;
-            i.save();
-        }
-
+        Util.saveItemsToDB(body);
         Intent intent = new Intent(SignInActivity.this, SelectTask.class);
         startActivity(intent);
         finish();

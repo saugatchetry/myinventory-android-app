@@ -6,6 +6,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import zakoi.com.myinventory.model.Items;
 
 /**
  * Created by zakoi on 7/19/17.
@@ -23,4 +26,14 @@ public class Util {
         }
         return date;
     }
+
+    public static void saveItemsToDB(List<Items> body) {
+        for(Items items : body){
+            Items i = new Items();
+            i.itemName = items.itemName;
+            i.uom = items.uom;
+            i.save();
+        }
+    }
+
 }

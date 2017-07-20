@@ -3,6 +3,7 @@ package zakoi.com.myinventory;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,21 +27,27 @@ import com.activeandroid.query.Update;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.NetworkManager;
 import zakoi.com.myinventory.Utility.Util;
+import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
+import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
 
@@ -65,7 +72,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("1", "cow created");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_task);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -102,7 +109,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
         downloadingDialog = downloadingAlertDialogBuilder.create();
         downloadingDialog.show();
-
     }
 
 
@@ -111,6 +117,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     protected void onResume(){
         super.onResume();
 
+        CheckForNewItems();
         smsSentReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -181,11 +188,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
              alertDialog = alertDialogBuilder.create();
              alertDialog.show();
-
-
-
-
-
          }
         for(StockTransfer st : list){
             stockIds.add(st.transferId);
@@ -329,9 +331,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     private void syncAllOutgoingTransfer(){
         List<OutgoingStockTransfer> outgoingStocks = OutgoingStockTransfer.getaAllOutgoingTransfers();
 
-
-
-
         GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
         Gson gson = builder.create();
         Retrofit.Builder builder1 = new Retrofit.Builder()
@@ -414,8 +413,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                     Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
                 }
             });
-
-
     }
 
     private void makeAllReceiptsUneditable() {
@@ -457,7 +454,68 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     private void updateAllSubmittedReceipts() {
         new Update(ItemReceipt.class).set("sync_cloud = 1").execute();
+    }
+
+    private void CheckForNewItems() {
+
+        Call<ResponseBody> call = NetworkManager.getInstance().client.getLastUpdatedTime();
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String currentTimeStamp = "";
+                try {
+                    currentTimeStamp = response.body().string();
+                } catch (IOException e) {
+                    Log.e("SelectTask","Error on processing timestamp");
+                    return;
+                }
+                CheckTimeStamp(currentTimeStamp);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                OnError(t);
+            }
+        });
+    }
+
+    void OnError(Throwable t) {
+        Log.d("Sync","Error :- "+t.getMessage());
+        Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_LONG).show();
 
     }
 
+    void CheckTimeStamp(final String currentTimeStamp) {
+        String timeStamp = sharedpreferences.getString(Config.P_TIME_STAMP,"default");
+
+        if (timeStamp.equals(currentTimeStamp)) {
+            return;
+        }
+
+        boolean itemTableExists = new Select()
+                .from(Items.class)
+                .exists();
+
+        final HashSet<Items> items_set = (itemTableExists) ? new HashSet<Items>(Items.getAllItems()) : new HashSet<Items>();
+        Call<List<Items>> call = NetworkManager.getInstance().client.getAllStoreItems(storeName);
+
+        call.enqueue(new Callback<List<Items>>() {
+            @Override
+            public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
+                List<Items> new_items_list = response.body();
+                new_items_list.removeAll(items_set);
+                Util.saveItemsToDB(new_items_list);
+
+                // Update Timestamp
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(Config.P_TIME_STAMP, currentTimeStamp);
+                editor.commit();
+            }
+
+            @Override
+            public void onFailure(Call<List<Items>> call, Throwable t) {
+                Log.e("Error","Network call failed because - "+t.getLocalizedMessage());
+            }
+        });
+    }
 }

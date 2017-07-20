@@ -3,6 +3,7 @@ package zakoi.com.myinventory;
 import java.util.HashMap;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -31,6 +32,9 @@ public interface ReceiptClient {
     @GET("/api/getAllVendors")
     Call<List<Vendors>> getAllVendors();
 
+    @GET("/api/getLastUpdatedTime")
+    Call<ResponseBody> getLastUpdatedTime();
+
     @GET("/api/getAllStockTransfers")
     Call<List<StockTransfer>> getAllStockTransfers(@Query("storeName") String storeName);
 
@@ -39,7 +43,6 @@ public interface ReceiptClient {
 
     @POST("/api/outgoingStockTransfers")
     Call<Void> submitAllOutgoingStockTransfers(@Body List<OutgoingStockTransfer> list);
-
 
 
 }

@@ -32,8 +32,8 @@ public class SplashScreen extends AppCompatActivity {
         if(!storeName.equalsIgnoreCase("default")){
             Intent intent = new Intent(this, SelectTask.class);
             startActivity(intent);
+            return;
         }
-
 
         _client = NetworkManager.getInstance().client;
         Call<List<Vendors>> call1 = _client.getAllVendors();

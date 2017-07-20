@@ -149,8 +149,6 @@ public class ReceiptEntry extends AppCompatActivity {
                itemNames[index] = i.itemName;
                index++;
             }
-
-
         }
 
         if(customerTableExists) {

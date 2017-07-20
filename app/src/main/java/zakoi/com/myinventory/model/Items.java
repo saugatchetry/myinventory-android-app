@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static android.R.attr.name;
@@ -25,5 +26,4 @@ public class Items extends Model {
     public static List<Items> getAllItems(){
         return new Select().all().from(Items.class).execute();
     }
-
 }

@@ -3,6 +3,7 @@ package zakoi.com.myinventory;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.Utility.NetworkManager;
+import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.model.Vendors;
 
 public class SplashScreen extends AppCompatActivity {
@@ -25,6 +27,18 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash_screen);
+
+        new Handler().postDelayed(new Runnable(){
+            @Override
+            public void run() {
+                Start();
+            }
+        }, Config.SPLASH_DISPLAY_LENGTH);
+    }
+
+
+    private void Start() {
 
         SharedPreferences sharedpreferences = getSharedPreferences(Config.SHARED_PREF_STORE, Context.MODE_PRIVATE);
         final String storeName = sharedpreferences.getString(Config.P_STORE_KEY,"default");
@@ -71,6 +85,7 @@ public class SplashScreen extends AppCompatActivity {
         Intent intent = new Intent(this, SignInActivity.class);
         intent.putStringArrayListExtra(Config.I_VENDOR_LIST, vendor_names);
         startActivity(intent);
+        finish();
     }
 
     private void ShowError() {

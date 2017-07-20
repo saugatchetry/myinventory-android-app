@@ -15,20 +15,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
 import com.activeandroid.query.Update;
-import com.github.johnpersano.supertoasts.library.Style;
-import com.github.johnpersano.supertoasts.library.SuperActivityToast;
-import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,12 +33,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
@@ -55,7 +46,7 @@ public class ReceiptEntry extends AppCompatActivity {
 
     AutoCompleteTextView actv_itemName;
     List<Items> allItems = new ArrayList<>();
-    String[] itemNames;
+    List<String> itemNames_list;
     List<CustomerInfo> allCustomer = new ArrayList<>();
     DatePickerDialog.OnDateSetListener mDateSetListener;
 
@@ -147,11 +138,10 @@ public class ReceiptEntry extends AppCompatActivity {
 
         if(itemTableExists) {
             allItems = Items.getAllItems();
-            itemNames = new String[allItems.size()];
-            int index = 0;
+            itemNames_list = new ArrayList<String>();
+
             for(Items i : allItems){
-               itemNames[index] = i.itemName;
-               index++;
+                itemNames_list.add(i.itemName);
             }
         }
 
@@ -234,7 +224,7 @@ public class ReceiptEntry extends AppCompatActivity {
 
         //Adapter for autocompletetextview
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,itemNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, itemNames_list);
         actv_itemName.setAdapter(adapter);
 
         actv_itemName.addTextChangedListener(new TextWatcher() {
@@ -262,9 +252,6 @@ public class ReceiptEntry extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
 
-
-
-
             }
         });
 
@@ -282,11 +269,24 @@ public class ReceiptEntry extends AppCompatActivity {
                 double amount = Double.parseDouble(itemAmount);
                 int canEdit = 1;
                 int synced = 0;
+
+                if(!itemNames_list.contains(itemName)) {
+                    actv_itemName.setError("Item Name does not exist");
+                    return;
+                }
+
+
                 saveReceiptToDB(customerName,customerPhoneNumber,itemName,quantity,amount,canEdit,date,synced);
-                ToastManager.getInstance().ShowSubmitted(ReceiptEntry.this, itemName + "receipt submitted");
+                ToastManager.getInstance().ShowSubmitted(ReceiptEntry.this, itemName + " receipt submitted");
                 Log.d("Date","Date is - "+tv_date.getText().toString());
                 clearForm();
 
+                //Hide keyboard
+                View view1 = ReceiptEntry.this.getCurrentFocus();
+                if (view1 != null) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
             }
         });
     }
@@ -397,9 +397,15 @@ public class ReceiptEntry extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ToastManager.getInstance().DismissToast();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
-        ToastManager.getInstance().DismissToast();
+
     }
 
 

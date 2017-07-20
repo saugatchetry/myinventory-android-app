@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Modifier;
+import java.util.Date;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -19,6 +20,8 @@ public class NetworkManager {
 
     private static String Tag = "Network Manager";
     private static NetworkManager instance = null;
+    private static Date TIME_GET_ITEMS = null;
+    private static Date TIME_GET_TRANSFERS = null;
     public ReceiptClient client;
     public enum API {
         GET_ALL_VENDORS,
@@ -47,6 +50,40 @@ public class NetworkManager {
 
     public void sendRequest(NetworkInterface instance, API api) {
         Log.d(Tag, "Sending request");
+    }
+
+    public static Boolean CallGetItems() {
+        Date current = new Date();
+        if(TIME_GET_ITEMS == null) {
+            TIME_GET_ITEMS = current;
+            return true;
+        }
+
+        long minutes = Util.getElapsedMins(current, TIME_GET_ITEMS);
+
+        if (minutes >= Config.TIME_INTERVAL) {
+            TIME_GET_ITEMS = current;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static Boolean CallRefreshStock() {
+        Date current = new Date();
+        if(TIME_GET_TRANSFERS == null) {
+            TIME_GET_TRANSFERS = current;
+            return true;
+        }
+
+        long minutes = Util.getElapsedMins(current, TIME_GET_TRANSFERS);
+
+        if (minutes >= Config.TIME_STOCK_INTERVAL) {
+            TIME_GET_TRANSFERS = current;
+            return true;
+        }
+
+        return false;
     }
 
 }

@@ -44,6 +44,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.Utility.NetworkManager;
+import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.Utility.Util;
 import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
@@ -69,6 +70,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     PendingIntent sentPI,deliveredPI;
 
     BroadcastReceiver smsSentReceiver, smsDeliveredReceiver;
+    ToastManager _toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,8 +111,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
         downloadingDialog = downloadingAlertDialogBuilder.create();
         downloadingDialog.show();
+        _toast = ToastManager.getInstance();
+        _toast.ShowSyncToast(this);
     }
-
 
 
     @Override
@@ -159,6 +162,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     protected void onStop() {
         super.onStop();
 
+        ToastManager.getInstance().DismissToast();
         unregisterReceiver(smsSentReceiver);
         unregisterReceiver(smsDeliveredReceiver);
     }
@@ -196,21 +200,21 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     private void getAllTransferStocks() {
 
-        GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
-        Gson gson = builder.create();
-        Retrofit.Builder builder1 = new Retrofit.Builder()
-                //.baseUrl("http://10.0.2.2:8080/")
-                .baseUrl(Config.SERVER_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson));
-        Retrofit retrofit = builder1.build();
-
-        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-        Call<List<StockTransfer>> call = receiptClient.getAllStockTransfers(storeName);
+//        GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
+//        Gson gson = builder.create();
+//        Retrofit.Builder builder1 = new Retrofit.Builder()
+//                .baseUrl(Config.SERVER_URL)
+//                .addConverterFactory(GsonConverterFactory.create(gson));
+//        Retrofit retrofit = builder1.build();
+//
+//        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
+        Call<List<StockTransfer>> call = NetworkManager.getInstance().client.getAllStockTransfers(storeName);
         call.enqueue(new Callback<List<StockTransfer>>() {
             @Override
             public void onResponse(Call<List<StockTransfer>> call, Response<List<StockTransfer>> response) {
 
                 downloadingDialog.dismiss();
+                _toast.DismissToast();
                 saveStockTransferDataToTable(response.body());
 
             }
@@ -219,6 +223,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             public void onFailure(Call<List<StockTransfer>> call, Throwable t) {
                 Log.e("Error","Failed baba Network call failed because - "+t.getLocalizedMessage());
                 downloadingDialog.dismiss();
+                _toast.DismissToast();
 
             }
         });
@@ -277,7 +282,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 break;
 
             case R.id.sync:
-
+                _toast.ShowSyncToast(this);
                 syncAllConfirmedTransfers();
 
 
@@ -309,7 +314,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onResponse(Call call, Response response) {
 
-                Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
                 //now mark them as synced in db
                 for(Integer id : ids) {
                     new Update(StockTransfer.class).set("sync_cloud = 1").where("transferId = ?",id).execute();
@@ -320,6 +325,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onFailure(Call call, Throwable t) {
                 downloadingDialog.dismiss();
+                _toast.DismissToast();
                 Log.d("Sync","Error :- "+t.getMessage());
                 Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
             }
@@ -347,7 +353,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onResponse(Call call, Response response) {
 
-                Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
+                _toast.current.setText("Outgoing stock trasfers synced");
                 new Update(OutgoingStockTransfer.class).set("sync_cloud = 1").execute();
                 syncAllUnsyncedReceipts();
             }
@@ -355,6 +362,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onFailure(Call call, Throwable t) {
                 downloadingDialog.dismiss();
+                _toast.DismissToast();
                 Log.d("Sync","Error :- "+t.getMessage());
                 Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
             }
@@ -365,7 +373,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     public void syncAllUnsyncedReceipts(){
 
-
+        _toast.current.setText("Syncing Receipts ...");
             List<ItemReceipt> savedReceipts = ItemReceipt.getAllCommitedButUnsyncedReceipts();
             List<Receipts> receiptList = new ArrayList<>();
             final List<Long> ids = new ArrayList<>();
@@ -399,8 +407,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 @Override
                 public void onResponse(Call call, Response response) {
 
-                    Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
                     downloadingDialog.dismiss();
+                    _toast.DismissToast();
                     for(Long id: ids) {
                         new Update(ItemReceipt.class).set("sync_cloud = 1").where("Id = ?",id).execute();
                     }
@@ -409,6 +418,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 @Override
                 public void onFailure(Call call, Throwable t) {
                     downloadingDialog.dismiss();
+                    _toast.DismissToast();
                     Log.d("Sync","Error :- "+t.getMessage());
                     Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
                 }

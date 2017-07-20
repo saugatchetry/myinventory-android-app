@@ -26,6 +26,9 @@ import android.widget.Toast;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
 import com.activeandroid.query.Update;
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.Items;
@@ -252,11 +256,6 @@ public class ReceiptEntry extends AppCompatActivity {
                 }
 
                 tv_itemUOM.setText(itemUOM);
-//                String quant = et_itemQuantity.getText().toString();
-//
-//                if(!quant.equalsIgnoreCase("")){
-//                    et_itemAmount.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemAmount);
-//                }
                 checkIfAllFieldAreFilled();
             }
 
@@ -268,25 +267,6 @@ public class ReceiptEntry extends AppCompatActivity {
 
             }
         });
-
-
-
-//        et_itemQuantity.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                et_itemAmount.setText(""+Double.parseDouble(et_itemQuantity.getText().toString())*selectedItemAmount);
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//
-//            }
-//        });
 
         btnSubmitReceipt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -303,22 +283,22 @@ public class ReceiptEntry extends AppCompatActivity {
                 int canEdit = 1;
                 int synced = 0;
                 saveReceiptToDB(customerName,customerPhoneNumber,itemName,quantity,amount,canEdit,date,synced);
+                ToastManager.getInstance().ShowSubmitted(ReceiptEntry.this, itemName + "receipt submitted");
                 Log.d("Date","Date is - "+tv_date.getText().toString());
                 clearForm();
 
             }
         });
-
     }
 
     private void clearForm() {
+
         et_customerPhoneNumber.setText("");
         et_itemAmount.setText("");
         actv_itemName.setText("");
         et_itemQuantity.setText("");
         tv_itemUOM.setText("");
     }
-
 
     private void saveReceiptToDB(String customerName, String customerPhoneNumber, String itemName, double quantity, double amount,int canEdit,String date, int synced) {
 
@@ -415,6 +395,13 @@ public class ReceiptEntry extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ToastManager.getInstance().DismissToast();
+    }
+
 
 
 

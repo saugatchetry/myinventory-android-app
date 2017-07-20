@@ -98,12 +98,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         sentPI = PendingIntent.getBroadcast(this,0,new Intent(sent),0);
         deliveredPI = PendingIntent.getBroadcast(this,0,new Intent(delivered), 0);
 
-        boolean stockTransferTableExists = new Select()
-                .from(StockTransfer.class)
-                .exists();
-        if(stockTransferTableExists){
-            readAllStockTransfers();
-        }
+
+
 
         getAllTransferStocks();
 
@@ -122,6 +118,15 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         super.onResume();
 
         ToastManager.getInstance().Reset();
+
+        boolean stockTransferTableExists = new Select()
+                .from(StockTransfer.class)
+                .exists();
+
+        if(stockTransferTableExists && NetworkManager.CallRefreshStock()){
+            readAllStockTransfers();
+        }
+
         if(NetworkManager.CallGetItems()) { {
             CheckForNewItems();
         }}
@@ -132,7 +137,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
                 switch (getResultCode()){
                     case Activity.RESULT_OK:
-                        Toast.makeText(SelectTask.this,"SMS Sent Successfully",Toast.LENGTH_SHORT).show();
+                        ToastManager.getInstance().SendSMS(SelectTask.this,"SMS Sent Successfully");
+                        //Toast.makeText(SelectTask.this,"SMS Sent Successfully",Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         Toast.makeText(SelectTask.this,"SMS Couldn't be Sent",Toast.LENGTH_SHORT).show();
@@ -148,7 +154,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
                 switch (getResultCode()){
                     case Activity.RESULT_OK:
-                        Toast.makeText(SelectTask.this,"SMS Delivered Successfully",Toast.LENGTH_SHORT).show();
+                        // ToastManager.getInstance().SendSMS(SelectTask.this,"SMS Delivered");
+                        // Toast.makeText(SelectTask.this,"SMS Delivered Successfully",Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         Toast.makeText(SelectTask.this,"SMS Couldn't be Delivered",Toast.LENGTH_SHORT).show();

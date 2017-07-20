@@ -85,6 +85,7 @@ public class SplashScreen extends AppCompatActivity {
         Intent intent = new Intent(this, SignInActivity.class);
         intent.putStringArrayListExtra(Config.I_VENDOR_LIST, vendor_names);
         startActivity(intent);
+        finish();
     }
 
     private void ShowError() {

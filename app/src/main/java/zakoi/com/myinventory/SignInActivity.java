@@ -85,23 +85,25 @@ public class SignInActivity extends AppCompatActivity {
                 editor.putString(Config.P_STORE_KEY, storeName);
                 editor.putString(Config.P_TIME_STAMP, "");
                 editor.commit();
+                Intent intent = new Intent(SignInActivity.this, SelectTask.class);
+                startActivity(intent);
+                finish();
 
-                Toast.makeText(SignInActivity.this,"Successful",Toast.LENGTH_LONG).show();
-
-                ReceiptClient receiptClient = NetworkManager.getInstance().client;
-                Call<List<Items>> call = receiptClient.getAllStoreItems(storeName);
-                call.enqueue(new Callback<List<Items>>() {
-                    @Override
-                    public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
-                        Log.d("Tag", "Response " + response.body().toString());
-                        saveItemsToDB(response.body());
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Items>> call, Throwable t) {
-                        Log.e("Error","Network call failed because - "+t.getLocalizedMessage());
-                    }
-                });
+//                Toast.makeText(SignInActivity.this,"Successful",Toast.LENGTH_LONG).show();
+//                ReceiptClient receiptClient = NetworkManager.getInstance().client;
+//                Call<List<Items>> call = receiptClient.getAllStoreItems(storeName);
+//                call.enqueue(new Callback<List<Items>>() {
+//                    @Override
+//                    public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
+//                        Log.d("Tag", "Response " + response.body().toString());
+//                        saveItemsToDB(response.body());
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<List<Items>> call, Throwable t) {
+//                        Log.e("Error","Network call failed because - "+t.getLocalizedMessage());
+//                    }
+//                });
             }
         });
 

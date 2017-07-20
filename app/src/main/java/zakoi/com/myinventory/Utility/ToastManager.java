@@ -58,6 +58,24 @@ public class ToastManager {
         return current;
     }
 
+    public SuperActivityToast SendSMS(Context context, String msg) {
+        // For syncing purposes
+        if (isSameToast(context, Type.submit, msg)) {
+            return current;
+        }
+
+        DismissToast();
+        current = new SuperActivityToast(context, Style.TYPE_STANDARD);
+        current.setText(msg);
+        current.setDuration(Style.DURATION_SHORT);
+        current.setFrame(Style.FRAME_KITKAT);
+        current.setAnimations(Style.ANIMATIONS_POP);
+        current.setIconResource(android.R.drawable.ic_menu_send);
+        current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_GREEN));
+        current.show();
+        return current;
+    }
+
     public SuperActivityToast ShowSubmitted(Context context, String msg) {
         // For syncing purposes
         if (isSameToast(context, Type.submit, msg)) {
@@ -65,11 +83,12 @@ public class ToastManager {
         }
 
         DismissToast();
-        current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
+        current = new SuperActivityToast(context, Style.TYPE_STANDARD);
         current.setText(msg);
-        current.setDuration(Style.DURATION_MEDIUM);
+        current.setDuration(Style.DURATION_SHORT);
         current.setFrame(Style.FRAME_KITKAT);
-        current.setAnimations(Style.ANIMATIONS_FADE);
+        current.setAnimations(Style.ANIMATIONS_POP);
+        current.setIconResource(android.R.drawable.ic_menu_upload);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_GREEN));
         current.show();
 

@@ -111,7 +111,7 @@ public class AllReceiptEntry extends AppCompatActivity implements OnQueryTextLis
         ArrayList<EditReceiptModel> newList = new ArrayList<>();
 
         for(EditReceiptModel model : editData){
-            String customerName = model.getCustomerName();
+            String customerName = model.getItemName();
 
             if(customerName.contains(newText)){
                 newList.add(model);

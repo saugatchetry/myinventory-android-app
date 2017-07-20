@@ -20,8 +20,9 @@ public class Config {
     //Intent String Constants
     public static final String I_VENDOR_LIST = "vendor_list";
 
-    //Date time
+    //Date time in minutes
     public static final int TIME_INTERVAL = 1;
+    public static final int TIME_STOCK_INTERVAL = 1;
     public static final int SPLASH_DISPLAY_LENGTH = 2000;
 
 

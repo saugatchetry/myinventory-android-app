@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import zakoi.com.myinventory.Utility.Config;
+import zakoi.com.myinventory.Utility.Util;
 import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
@@ -43,9 +45,6 @@ public class StockTransferActivity extends AppCompatActivity {
     String storeName;
 
     SharedPreferences sharedpreferences;
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String Name = "nameKey";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +53,9 @@ public class StockTransferActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedpreferences = getSharedPreferences(Config.SHARED_PREF_STORE, Context.MODE_PRIVATE);
 
-        storeName = sharedpreferences.getString(Name,"default");
+        storeName = sharedpreferences.getString(Config.P_STORE_KEY,"default");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String currentDateandTime = sdf.format(new Date());
@@ -105,7 +104,7 @@ public class StockTransferActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 OutgoingStockTransfer ost = new OutgoingStockTransfer();
-                ost.transferDate = tv_date.getText().toString();
+                ost.transferDate = Util.ChangeDateFormat(tv_date.getText().toString());
                 ost.sourceVendor = storeName;
                 ost.targetVendor = sp_vendorName.getSelectedItem().toString();
                 ost.itemName = sp_itemName.getText().toString();

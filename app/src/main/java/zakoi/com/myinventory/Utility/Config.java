@@ -8,8 +8,8 @@ import java.util.Date;
 
 public class Config {
     //Server
-//     public static final String SERVER_URL = "https://0c4e36eb.ngrok.io";
-    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
+    public static final String SERVER_URL = "https://9138d64c.ngrok.io";
+//    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
 
 
     //Shared Pref
@@ -24,6 +24,9 @@ public class Config {
     public static final int TIME_INTERVAL = 1;
     public static final int TIME_STOCK_INTERVAL = 1;
     public static final int SPLASH_DISPLAY_LENGTH = 2000;
+
+    //Config
+    public static int UNCONFIRMED_TRANSFERS = 0;
 
 
 }

@@ -15,6 +15,7 @@ import com.activeandroid.query.Update;
 import java.util.ArrayList;
 import java.util.List;
 
+import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.model.EditReceiptModel;
 import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.StockTransfer;
@@ -65,7 +66,7 @@ public class StockTransferRecyclerAdapter extends RecyclerView.Adapter<StockTran
     }
 
     private void confirmItem(StockTransfer stock) {
-
+        Config.UNCONFIRMED_TRANSFERS -= 1;
         int position = data.indexOf(stock);
 
         data.remove(position);

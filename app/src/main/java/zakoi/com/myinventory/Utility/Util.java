@@ -41,4 +41,9 @@ public class Util {
         return TimeUnit.MILLISECONDS.toMinutes(now.getTime() - before.getTime());
     }
 
+    public static  String getDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.format(new Date());
+    }
+
 }

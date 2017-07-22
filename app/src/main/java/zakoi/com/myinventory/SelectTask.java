@@ -20,6 +20,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
@@ -52,6 +53,10 @@ import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
 
+import static zakoi.com.myinventory.R.id.id_tv_cash;
+import static zakoi.com.myinventory.R.id.id_tv_date;
+import static zakoi.com.myinventory.R.id.id_tv_stockTransfer;
+import static zakoi.com.myinventory.R.id.id_tv_storeName;
 import static zakoi.com.myinventory.R.id.stockTransfer;
 
 public class SelectTask extends AppCompatActivity implements View.OnClickListener{
@@ -68,8 +73,11 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     String delivered = "sms delivered";
     String timeStamp = "";
     PendingIntent sentPI,deliveredPI;
+    double totalCash = 0;
+
 
     BroadcastReceiver smsSentReceiver, smsDeliveredReceiver;
+    TextView tv_storeName,tv_stockTransfer,tv_date,tv_totalCash;
     ToastManager _toast;
 
     @Override
@@ -89,6 +97,11 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         btn_sync = (Button)findViewById(R.id.sync);
         btn_confirmStockTransfer = (Button) findViewById(R.id.confirmStock);
 
+        tv_date = (TextView) findViewById(id_tv_date);
+        tv_totalCash = (TextView) findViewById(id_tv_cash);
+        tv_stockTransfer = (TextView) findViewById(id_tv_stockTransfer);
+        tv_storeName = (TextView) findViewById(id_tv_storeName);
+
         btn_checkOut.setOnClickListener(this);
         btn_saveReceipts.setOnClickListener(this);
         btn_stockTransfer.setOnClickListener(this);
@@ -104,6 +117,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         downloadingDialog.show();
         _toast = ToastManager.getInstance();
         _toast.ShowSyncToast(this);
+
+        tv_storeName.setText(storeName);
+        tv_date.setText(Util.getDate());
     }
 
 
@@ -111,6 +127,11 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     protected void onResume(){
 
         super.onResume();
+        String msg = "" + getTotalCashAmount();
+        tv_totalCash.setText(msg);
+
+        msg = "" + Config.UNCONFIRMED_TRANSFERS;
+        tv_stockTransfer.setText(msg);
 
         ToastManager.getInstance().Reset();
 
@@ -178,6 +199,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     private void readAllStockTransfers() {
 
          list = StockTransfer.getAllUnconfirmedTransfers();
+          Config.UNCONFIRMED_TRANSFERS = list.size();
+
          if(list.size() > 0){
 
              AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -264,7 +287,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.checkOut:
-                getTotalCashAmount();
+                sendSMS();
                 makeAllReceiptsUneditable();
 
                 /*
@@ -435,19 +458,17 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     }
 
-    private void getTotalCashAmount(){
+    private double getTotalCashAmount(){
         List<ItemReceipt> allReceipts = ItemReceipt.getAllEditableReceipts();
-        double totalCash = 0.0;
+        totalCash = 0.0;
         for(ItemReceipt ir : allReceipts){
             totalCash = totalCash + ir.amount;
         }
-
-        sendSMS(totalCash);
-
         Log.d("TotalCash","Cash = "+totalCash);
+        return totalCash;
     }
 
-    private void sendSMS(double totalCash) {
+    private void sendSMS() {
 
         DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
         String date = df.format(Calendar.getInstance().getTime());

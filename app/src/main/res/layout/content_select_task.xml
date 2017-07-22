@@ -4,13 +4,153 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="10"
-    android:background="@drawable/palet03">
+    android:weightSum="10">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="10">
+        android:layout_weight="10"
+        android:weightSum="10"
+        >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:background="#53bab4"
+            android:src="@drawable/warehouse" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:background="@color/cardview_dark_background"
+            android:orientation="vertical"
+            android:weightSum="10">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4"
+                android:gravity="bottom|center_horizontal"
+                android:text="Store Status"
+                style="@android:style/TextAppearance.Small"
+                android:textColor="@color/cardview_light_background"
+                android:textSize="35px"
+                android:layout_marginBottom="5dp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="6"
+                android:weightSum="10">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="6"
+                    android:orientation="vertical"
+                    android:weightSum="8">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="right|center_vertical"
+                        android:text="Total Cash : "
+                        android:textColor="#55ba53"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="right|center_vertical"
+                        android:text="Stock Transfer : "
+                        android:textColor="#55ba53"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="right|center_vertical"
+                        android:text="Store Name : "
+                        android:textColor="#55ba53"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="right|center_vertical"
+                        android:text="Date : "
+                        android:textColor="#55ba53"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4"
+                    android:orientation="vertical"
+                    android:weightSum="8">
+
+                    <TextView
+                        android:id="@+id/id_tv_cash"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="center_vertical"
+                        android:text="2000 "
+                        android:textColor="#FFFFFF"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/id_tv_stockTransfer"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="center_vertical"
+                        android:text="2000 "
+                        android:textColor="#FFFFFF"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/id_tv_storeName"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="center_vertical"
+                        android:text="saugat"
+                        android:textColor="#FFFFFF"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/id_tv_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:gravity="center_vertical"
+                        android:text="05/04/1989"
+                        android:textColor="#FFFFFF"
+                        android:textSize="26px"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            >
+        </LinearLayout>
+
+
+
 
     </LinearLayout>
 

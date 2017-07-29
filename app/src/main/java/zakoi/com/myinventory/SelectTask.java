@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +54,8 @@ import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
 
+import static android.R.attr.id;
+import static android.R.attr.name;
 import static zakoi.com.myinventory.R.id.id_tv_cash;
 import static zakoi.com.myinventory.R.id.id_tv_date;
 import static zakoi.com.myinventory.R.id.id_tv_stockTransfer;
@@ -65,7 +68,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     Button btn_saveReceipts,btn_stockTransfer,btn_checkOut,btn_sync,btn_confirmStockTransfer;
     List<StockTransfer> list = new ArrayList<>();
     List<Integer> stockIds = new ArrayList<>();
-    AlertDialog alertDialog,downloadingDialog, syncingDataDialog;
+    AlertDialog alertDialog,downloadingDialog,confirmSendSMSDialog,syncingDataDialog;
 
     SharedPreferences sharedpreferences;
     String storeName;
@@ -115,6 +118,31 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
         downloadingDialog = downloadingAlertDialogBuilder.create();
         downloadingDialog.show();
+
+        AlertDialog.Builder confirmSendSMSAlertDialogBuilder = new AlertDialog.Builder(this);
+        //confirmSendSMSAlertDialogBuilder.setMessage("Ready To Send SMS");
+        confirmSendSMSDialog = confirmSendSMSAlertDialogBuilder.create();
+        confirmSendSMSDialog.setTitle("Send SMS");
+        String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
+        //mytextview.setText(Html.fromHtml(sourceString));
+        //confirmSendSMSDialog.setMessage("Total Cash Collected - "+tv_totalCash.getText());
+        confirmSendSMSDialog.setMessage(Html.fromHtml(sourceString));
+        confirmSendSMSDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Send",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dialog.dismiss();
+                        sendSMS();
+                    }
+                });
+        confirmSendSMSDialog.setButton(AlertDialog.BUTTON_NEGATIVE,"Cancel",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        //confirmSendSMSDialog.show();
+
         _toast = ToastManager.getInstance();
         _toast.ShowSyncToast(this);
 
@@ -287,7 +315,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.checkOut:
-                sendSMS();
+                confirmSendSMSDialog.show();
+                //sendSMS();
                 makeAllReceiptsUneditable();
 
                 /*

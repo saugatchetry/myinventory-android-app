@@ -60,6 +60,7 @@ public class SplashScreen extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Vendors>> call, Throwable t) {
+                Log.d("Failure","Failure is succes of pillar");
                 ShowError();
                 // Intent intent = new Intent(SignInActivity.class, SelectTask.class);
                 //startActivity(intent);

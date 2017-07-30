@@ -52,6 +52,7 @@ public class ToastManager {
         current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
         current.setText("Syncing With Server");
         current.setIndeterminate(true);
+        current.setDuration(Style.DURATION_VERY_LONG);
         current.setProgressIndeterminate(true);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_PINK));
         current.show();

@@ -191,7 +191,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                         Toast.makeText(SelectTask.this,"SMS Couldn't be Sent",Toast.LENGTH_SHORT).show();
                         break;
                 }
-
             }
         };
 
@@ -220,10 +219,14 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     @Override
     protected void onStop() {
         super.onStop();
-
         ToastManager.getInstance().DismissToast();
-        unregisterReceiver(smsSentReceiver);
-        unregisterReceiver(smsDeliveredReceiver);
+        try {
+            unregisterReceiver(smsSentReceiver);
+            unregisterReceiver(smsDeliveredReceiver);
+        }
+        catch(IllegalArgumentException e) {
+            Log.e("Select Task", "SMS not registered");
+        }
     }
 
     private void readAllStockTransfers() {
@@ -346,12 +349,14 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 break;
 
             case R.id.sync:
-                _toast.ShowSyncToast(this);
-                syncAllConfirmedTransfers();
-
-
+                SyncAll();
                 break;
         }
+    }
+
+    private void SyncAll() {
+        _toast.ShowSyncToast(this);
+        syncAllConfirmedTransfers();
     }
 
     private void syncAllConfirmedTransfers() {

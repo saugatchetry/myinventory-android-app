@@ -123,9 +123,10 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         //confirmSendSMSAlertDialogBuilder.setMessage("Ready To Send SMS");
         confirmSendSMSDialog = confirmSendSMSAlertDialogBuilder.create();
         confirmSendSMSDialog.setTitle("Send SMS");
-        String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
+
         //mytextview.setText(Html.fromHtml(sourceString));
         //confirmSendSMSDialog.setMessage("Total Cash Collected - "+tv_totalCash.getText());
+        String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
         confirmSendSMSDialog.setMessage(Html.fromHtml(sourceString));
         confirmSendSMSDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Send",
                 new DialogInterface.OnClickListener() {
@@ -155,7 +156,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     protected void onResume(){
 
         super.onResume();
-        String msg = "" + getTotalCashAmount();
+        totalCash = getTotalCashAmount();
+        String msg = "" + totalCash;
         tv_totalCash.setText(msg);
 
         msg = "" + Config.UNCONFIRMED_TRANSFERS;
@@ -315,6 +317,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.checkOut:
+                String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
+                confirmSendSMSDialog.setMessage(Html.fromHtml(sourceString));
                 confirmSendSMSDialog.show();
                 //sendSMS();
                 makeAllReceiptsUneditable();

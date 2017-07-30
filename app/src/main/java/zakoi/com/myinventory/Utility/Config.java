@@ -21,8 +21,8 @@ public class Config {
     public static final String I_VENDOR_LIST = "vendor_list";
 
     //Date time in minutes
-    public static final int TIME_INTERVAL = 1;
-    public static final int TIME_STOCK_INTERVAL = 1;
+    public static final int TIME_GET_ITEMS_INTERVAL = 25;
+    public static final int TIME_STOCK_INTERVAL = 20;
     public static final int SPLASH_DISPLAY_LENGTH = 2000;
 
     //Config

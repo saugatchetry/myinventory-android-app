@@ -61,7 +61,7 @@ public class NetworkManager {
 
         long minutes = Util.getElapsedMins(current, TIME_GET_ITEMS);
 
-        if (minutes >= Config.TIME_INTERVAL) {
+        if (minutes >= Config.TIME_GET_ITEMS_INTERVAL) {
             TIME_GET_ITEMS = current;
             return true;
         }

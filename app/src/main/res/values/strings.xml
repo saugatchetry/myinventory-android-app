@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyInventory</string>
+    <string name="app_name">Stock Up</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_receipt_entry">ReceiptEntry</string>
     <string name="title_activity_edit">EditActivity</string>

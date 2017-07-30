@@ -9,12 +9,13 @@ import java.util.Date;
 public class Config {
     //Server
     public static final String SERVER_URL = "http://server.cemnohouse.biz:8443";
+    public static boolean SYNC = true;
 //    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
 
 
     //Shared Pref
     public static final String SHARED_PREF_STORE = "MyPrefs" ;
-    public static final String P_STORE_KEY = "store_name";
+    public static final String P_STORE_KEY = "store_name_key";
     public static final String P_TIME_STAMP = "time_stamp";
 
     //Intent String Constants
@@ -22,11 +23,13 @@ public class Config {
 
     //Date time in minutes
     public static final int TIME_GET_ITEMS_INTERVAL = 25;
-    public static final int TIME_STOCK_INTERVAL = 20;
+    public static final int TIME_STOCK_INTERVAL = 2;
+    public static final int TIME_SHOW_DIALOG_INTERVAL = 3;
+
+    //Seconds
     public static final int SPLASH_DISPLAY_LENGTH = 2000;
 
     //Config
     public static int UNCONFIRMED_TRANSFERS = 0;
-
 
 }

@@ -72,6 +72,7 @@ public class StockTransferRecyclerAdapter extends RecyclerView.Adapter<StockTran
         data.remove(position);
         new Update(StockTransfer.class).set("status = ?","Confirmed").where("transferId = ?",stock.transferId).execute();
         notifyItemRemoved(position);
+        Config.SYNC = true;
     }
 
     @Override

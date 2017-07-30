@@ -121,7 +121,7 @@ public class StockTransferActivity extends AppCompatActivity {
 
                 ost.save();
                 ToastManager.getInstance().ShowSubmitted(StockTransferActivity.this,"Stock transfer submitterd for : " + ost.itemName);
-                //Toast.makeText(StockTransferActivity.this,"Saved",Toast.LENGTH_SHORT).show();
+                Config.SYNC = true;
                 clearForm();
 
                 //Hide keyboard
@@ -139,7 +139,6 @@ public class StockTransferActivity extends AppCompatActivity {
 
         et_quantity.setText("");
         sp_itemName.setText("");
-
     }
 
     private List<Vendors> readTheVendorTable() {

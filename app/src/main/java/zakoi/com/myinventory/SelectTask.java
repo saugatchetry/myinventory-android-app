@@ -3,7 +3,6 @@ package zakoi.com.myinventory;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,10 +63,13 @@ import static zakoi.com.myinventory.R.id.stockTransfer;
 
 public class SelectTask extends AppCompatActivity implements View.OnClickListener{
 
+    private final static String TAG = "Select Task";
+
     int MY_PREMISSON_REQUEST_SEND_SMS = 1;
+    int call_count = 0;
     Button btn_saveReceipts,btn_stockTransfer,btn_checkOut,btn_sync,btn_confirmStockTransfer;
     List<StockTransfer> list = new ArrayList<>();
-    List<Integer> stockIds = new ArrayList<>();
+    HashSet<Integer> stockIds = new HashSet<>();
     AlertDialog alertDialog,downloadingDialog,confirmSendSMSDialog,syncingDataDialog;
 
     SharedPreferences sharedpreferences;
@@ -117,7 +119,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         AlertDialog.Builder downloadingAlertDialogBuilder = new AlertDialog.Builder(this);
         downloadingAlertDialogBuilder.setMessage("Syncing with Server .... ");
         downloadingDialog = downloadingAlertDialogBuilder.create();
-        downloadingDialog.show();
 
         AlertDialog.Builder confirmSendSMSAlertDialogBuilder = new AlertDialog.Builder(this);
         //confirmSendSMSAlertDialogBuilder.setMessage("Ready To Send SMS");
@@ -145,7 +146,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         //confirmSendSMSDialog.show();
 
         _toast = ToastManager.getInstance();
-        _toast.ShowSyncToast(this);
+        //_toast.ShowSyncToast(this);
 
         tv_storeName.setText(storeName);
         tv_date.setText(Util.getDate());
@@ -156,6 +157,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     protected void onResume(){
 
         super.onResume();
+        SyncAll();
         totalCash = getTotalCashAmount();
         String msg = "" + totalCash;
         tv_totalCash.setText(msg);
@@ -164,20 +166,6 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         tv_stockTransfer.setText(msg);
 
         ToastManager.getInstance().Reset();
-
-        boolean stockTransferTableExists = new Select()
-                .from(StockTransfer.class)
-                .exists();
-
-        if(stockTransferTableExists && NetworkManager.CallRefreshStock()){
-            readAllStockTransfers();
-        }
-
-        if(NetworkManager.CallGetItems()) { {
-            getAllTransferStocks();
-            CheckForNewItems();
-        }}
-
         smsSentReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -185,10 +173,16 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 switch (getResultCode()){
                     case Activity.RESULT_OK:
                         ToastManager.getInstance().SendSMS(SelectTask.this,"SMS Sent Successfully");
+                        totalCash = 0;
+                        String msg = "" + totalCash;
+                        tv_totalCash.setText(msg);
+
+                        SyncAll();
                         //Toast.makeText(SelectTask.this,"SMS Sent Successfully",Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         Toast.makeText(SelectTask.this,"SMS Couldn't be Sent",Toast.LENGTH_SHORT).show();
+                        SyncAll();
                         break;
                 }
             }
@@ -236,6 +230,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
          if(list.size() > 0){
 
+//             if (!NetworkManager.ShowAlertDialogBox())
+//                 return;
+
              AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
              alertDialogBuilder.setMessage("You have pending transfer Request. Would you like to confirm it ?");
                      alertDialogBuilder.setPositiveButton("yes",
@@ -257,9 +254,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
              alertDialog = alertDialogBuilder.create();
              alertDialog.show();
          }
-        for(StockTransfer st : list){
-            stockIds.add(st.transferId);
-        }
+
     }
 
     private void getAllTransferStocks() {
@@ -272,6 +267,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 //        Retrofit retrofit = builder1.build();
 //
 //        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
+//        _toast.ShowSyncToast(this);
         Call<List<StockTransfer>> call = NetworkManager.getInstance().client.getAllStockTransfers(storeName);
         call.enqueue(new Callback<List<StockTransfer>>() {
             @Override
@@ -298,6 +294,10 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             Log.d("SelectTask", "Save stock trasfer table returned null");
             return;
         }
+        list = StockTransfer.getAllUnconfirmedTransfers();
+        for(StockTransfer st : list){
+            stockIds.add(st.transferId);
+        }
         for(StockTransfer st : body){
             if(!stockIds.contains(st.transferId)) {
                 StockTransfer stockTransfer = new StockTransfer();
@@ -308,11 +308,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 stockTransfer.transferId = st.transferId;
                 stockTransfer.quantity = st.quantity;
                 stockTransfer.status = st.status;
-
                 stockTransfer.save();
             }
         }
-
     }
 
 
@@ -323,15 +321,13 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
                 confirmSendSMSDialog.setMessage(Html.fromHtml(sourceString));
                 confirmSendSMSDialog.show();
-                //sendSMS();
                 makeAllReceiptsUneditable();
-
+                Config.SYNC = true;
                 /*
                     Now sync all the confirmed transfers requests
                  */
 
                 //syncAllConfirmedTransfers();
-
 
                 break;
             case stockTransfer:
@@ -349,19 +345,47 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 break;
 
             case R.id.sync:
-                SyncAll();
+                SyncAll(true);
                 break;
         }
     }
 
     private void SyncAll() {
-        _toast.ShowSyncToast(this);
-        syncAllConfirmedTransfers();
+        SyncAll(false);
     }
+
+    private void SyncAll(boolean force) {
+
+        if(Config.SYNC) {
+            Log.i(TAG, "Sync called");
+            Config.SYNC = false;
+            downloadingDialog.show();
+            syncAllConfirmedTransfers();
+        }
+
+        if(force || NetworkManager.CallGetItems()) { {
+            Log.i(TAG, "Get items called");
+            _toast.ShowSyncToast(this);
+            getAllTransferStocks();
+            CheckForNewItems();
+        }}
+
+        boolean stockTransferTableExists = new Select()
+                .from(StockTransfer.class)
+                .exists();
+
+        if(force || (stockTransferTableExists && NetworkManager.CallRefreshStock())){
+            readAllStockTransfers();
+        }
+
+        Config.SYNC = false;
+    }
+
 
     private void syncAllConfirmedTransfers() {
 
-        downloadingDialog.show();
+        // downloadingDialog.show();
+        Log.i(TAG, "Syncing confirmed transfers");
 
         List<StockTransfer> confirmedStocks = StockTransfer.getaAllConfirmedTransfers();
         final ArrayList<Integer> ids = new ArrayList<>();
@@ -393,6 +417,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
             @Override
             public void onFailure(Call call, Throwable t) {
+                Config.SYNC = true;
                 downloadingDialog.dismiss();
                 _toast.DismissToast();
                 OnError(t);
@@ -403,92 +428,88 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
 
     private void syncAllOutgoingTransfer(){
-        List<OutgoingStockTransfer> outgoingStocks = OutgoingStockTransfer.getaAllOutgoingTransfers();
 
+        Log.i(TAG, "Syncing outgoing transfers");
+        List<OutgoingStockTransfer> outgoingStocks = OutgoingStockTransfer.getaAllOutgoingTransfers();
         GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
         Gson gson = builder.create();
         Retrofit.Builder builder1 = new Retrofit.Builder()
-                //.baseUrl("http://10.0.2.2:8080/")
                 .baseUrl(Config.SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = builder1.build();
 
         ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-
         Call<Void> call = receiptClient.submitAllOutgoingStockTransfers(outgoingStocks);
-
         call.enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
 
                 //Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
-                _toast.current.setText("Outgoing stock trasfers synced");
                 new Update(OutgoingStockTransfer.class).set("sync_cloud = 1").execute();
                 syncAllUnsyncedReceipts();
             }
 
             @Override
             public void onFailure(Call call, Throwable t) {
+                Config.SYNC = true;
                 downloadingDialog.dismiss();
                 _toast.DismissToast();
                 OnError(t);
             }
         });
-
     }
 
 
     public void syncAllUnsyncedReceipts(){
+        Log.i(TAG, "Syncing receipts");
+        List<ItemReceipt> savedReceipts = ItemReceipt.getAllCommitedButUnsyncedReceipts();
+        List<Receipts> receiptList = new ArrayList<>();
+        final List<Long> ids = new ArrayList<>();
+        for(ItemReceipt ir : savedReceipts) {
+            Receipts receipts = new Receipts();
+            receipts.setItemName(ir.itemName);
+            receipts.setCustomerName(ir.customerName);
+            receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
+            receipts.setQuantity(ir.quantity);
+            receipts.setAmount(ir.amount);
+            receipts.setReceiptDate(Util.ChangeDateFormat(ir.receiptDate));
+            receipts.setReceiptOutletName(storeName);
+            receiptList.add(receipts);
+            ids.add(ir.getId());
+        }
 
-        _toast.current.setText("Syncing Receipts ...");
-            List<ItemReceipt> savedReceipts = ItemReceipt.getAllCommitedButUnsyncedReceipts();
-            List<Receipts> receiptList = new ArrayList<>();
-            final List<Long> ids = new ArrayList<>();
-            for(ItemReceipt ir : savedReceipts) {
-                Receipts receipts = new Receipts();
-                receipts.setItemName(ir.itemName);
-                receipts.setCustomerName(ir.customerName);
-                receipts.setCustomerPhoneNumber(ir.customerPhoneNumber);
-                receipts.setQuantity(ir.quantity);
-                receipts.setAmount(ir.amount);
-                receipts.setReceiptDate(Util.ChangeDateFormat(ir.receiptDate));
-                receipts.setReceiptOutletName(storeName);
-                receiptList.add(receipts);
+        Log.d("Editable","size of receipts - "+receiptList.size());
 
-                ids.add(ir.getId());
+        Retrofit.Builder builder = new Retrofit.Builder()
+                //.baseUrl("http://10.0.2.2:8080/")
+                .baseUrl(Config.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create());
+        Retrofit retrofit = builder.build();
+
+        ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
+
+        Call<Void> call = receiptClient.submitReceipt(receiptList);
+
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+
+                // Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
+                 downloadingDialog.dismiss();
+                //_toast.DismissToast();
+                for(Long id: ids) {
+                    new Update(ItemReceipt.class).set("sync_cloud = 1").where("Id = ?",id).execute();
+                }
             }
 
-            Log.d("Editable","size of receipts - "+receiptList.size());
-
-            Retrofit.Builder builder = new Retrofit.Builder()
-                    //.baseUrl("http://10.0.2.2:8080/")
-                    .baseUrl(Config.SERVER_URL)
-                    .addConverterFactory(GsonConverterFactory.create());
-            Retrofit retrofit = builder.build();
-
-            ReceiptClient receiptClient = retrofit.create(ReceiptClient.class);
-
-            Call<Void> call = receiptClient.submitReceipt(receiptList);
-
-            call.enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) {
-
-                    // Toast.makeText(SelectTask.this,"Submitted",Toast.LENGTH_SHORT).show();
-                    downloadingDialog.dismiss();
-                    _toast.DismissToast();
-                    for(Long id: ids) {
-                        new Update(ItemReceipt.class).set("sync_cloud = 1").where("Id = ?",id).execute();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call call, Throwable t) {
-                    downloadingDialog.dismiss();
-                    _toast.DismissToast();
-                    OnError(t);
-                }
-            });
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Config.SYNC = true;
+                 downloadingDialog.dismiss();
+                //_toast.DismissToast();
+                OnError(t);
+            }
+        });
     }
 
     private void makeAllReceiptsUneditable() {
@@ -531,12 +552,13 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     }
 
     private void CheckForNewItems() {
-
+        //_toast.ShowSyncToast(this);
         Call<ResponseBody> call = NetworkManager.getInstance().client.getLastUpdatedTime();
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 String currentTimeStamp = "";
+                _toast.DismissToast();
                 try {
                     if(response != null && response.body() != null)
                         currentTimeStamp = response.body().string();
@@ -554,6 +576,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                _toast.DismissToast();
                 OnError(t);
             }
         });
@@ -561,7 +584,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
     void OnError(Throwable t) {
         Log.d("Sync","Error :- "+t.getMessage());
-        _toast.ShowError(SelectTask.this, "Failed Reason :- "+t.getLocalizedMessage());
+        _toast.ShowError(SelectTask.this, "Offline, check Internet");
 //        Toast.makeText(SelectTask.this,"Failed Reason :- "+t.getLocalizedMessage(),Toast.LENGTH_LONG).show();
 
     }

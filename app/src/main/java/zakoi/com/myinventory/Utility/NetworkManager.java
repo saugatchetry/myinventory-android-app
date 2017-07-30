@@ -22,11 +22,8 @@ public class NetworkManager {
     private static NetworkManager instance = null;
     private static Date TIME_GET_ITEMS = null;
     private static Date TIME_GET_TRANSFERS = null;
+    private static Date TIME_SHOW_DIALOG = null;
     public ReceiptClient client;
-    public enum API {
-        GET_ALL_VENDORS,
-        GET_ALL_ITEMS,
-    };
 
     private NetworkManager() {
         GsonBuilder builder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
@@ -48,10 +45,6 @@ public class NetworkManager {
         return instance;
     }
 
-    public void sendRequest(NetworkInterface instance, API api) {
-        Log.d(Tag, "Sending request");
-    }
-
     public static Boolean CallGetItems() {
         Date current = new Date();
         if(TIME_GET_ITEMS == null) {
@@ -66,6 +59,7 @@ public class NetworkManager {
             return true;
         }
 
+        Log.i("TIMER", "New items not got, time remaining " + (Config.TIME_GET_ITEMS_INTERVAL - minutes));
         return false;
     }
 
@@ -80,6 +74,24 @@ public class NetworkManager {
 
         if (minutes >= Config.TIME_STOCK_INTERVAL) {
             TIME_GET_TRANSFERS = current;
+            return true;
+        }
+        Log.i("TIMER", "Store not refreshed, time remaining " + (Config.TIME_STOCK_INTERVAL - minutes));
+        return false;
+    }
+
+    public static Boolean ShowAlertDialogBox() {
+
+        Date current = new Date();
+        if(TIME_SHOW_DIALOG == null) {
+            TIME_SHOW_DIALOG = current;
+            return true;
+        }
+
+        long minutes = Util.getElapsedMins(current, TIME_SHOW_DIALOG);
+
+        if (minutes >= Config.TIME_SHOW_DIALOG_INTERVAL) {
+            TIME_SHOW_DIALOG = current;
             return true;
         }
 

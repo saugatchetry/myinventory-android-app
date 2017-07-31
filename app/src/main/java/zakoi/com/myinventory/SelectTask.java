@@ -172,7 +172,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
                 switch (getResultCode()){
                     case Activity.RESULT_OK:
-                        ToastManager.getInstance().SendSMS(SelectTask.this,"SMS Sent Successfully");
+                        _toast.SendSMS(SelectTask.this,"SMS Sent, Syncing Now");
                         totalCash = 0;
                         String msg = "" + totalCash;
                         tv_totalCash.setText(msg);
@@ -359,13 +359,13 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         if(Config.SYNC) {
             Log.i(TAG, "Sync called");
             Config.SYNC = false;
-            downloadingDialog.show();
             syncAllConfirmedTransfers();
         }
 
         if(force || NetworkManager.CallGetItems()) { {
             Log.i(TAG, "Get items called");
-            _toast.ShowSyncToast(this);
+            if (force)
+                _toast.ShowSyncToast(this);
             getAllTransferStocks();
             CheckForNewItems();
         }}
@@ -412,6 +412,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                 for(Integer id : ids) {
                     new Update(StockTransfer.class).set("sync_cloud = 1").where("transferId = ?",id).execute();
                 }
+                _toast.ShowSyncToast(SelectTask.this);
                 syncAllOutgoingTransfer();
             }
 

@@ -1,6 +1,7 @@
 package zakoi.com.myinventory.Utility;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
@@ -42,35 +43,34 @@ public class ToastManager {
     }
 
     public SuperActivityToast ShowSyncToast(Context context) {
-        // For syncing purposes
-        if (isSameToast(context, Type.sync, _message)) {
-            return current;
+        if (_context == null || !_context.toString().equals(context.toString())) {
+            if(_context != null)
+                current.dismiss();
+            current  = new SuperActivityToast(context);
+            Log.i("Toast","Toast context changed");
+            _context = context;
         }
 
-        DismissToast();
-
-        current = new SuperActivityToast(context, Style.TYPE_PROGRESS_CIRCLE);
         current.setText("Syncing With Server");
-        //current.setFrame(Style.FRAME_KITKAT);
-        current.setIndeterminate(true);
         current.setDuration(Style.DURATION_SHORT);
-        current.setProgressIndeterminate(true);
+        current.setIconResource(android.R.drawable.stat_notify_sync);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_PINK));
-        current.show();
+        if(!current.isShowing())
+            current.show();
         return current;
     }
 
     public SuperActivityToast SendSMS(Context context, String msg) {
         // For syncing purposes
-        if (isSameToast(context, Type.submit, msg)) {
-            return current;
+        if (_context == null || !_context.toString().equals(context.toString())) {
+            if(_context != null)
+                current.dismiss();
+            current  = new SuperActivityToast(context);
+            _context = context;
+            Log.i("Toast","Toast context changed");
         }
-
-        DismissToast();
-        current = new SuperActivityToast(context, Style.TYPE_STANDARD);
         current.setText(msg);
         current.setDuration(Style.DURATION_SHORT);
-        current.setFrame(Style.FRAME_KITKAT);
         current.setAnimations(Style.ANIMATIONS_POP);
         current.setIconResource(android.R.drawable.ic_menu_send);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_GREEN));
@@ -80,20 +80,22 @@ public class ToastManager {
 
     public SuperActivityToast ShowSubmitted(Context context, String msg) {
         // For syncing purposes
-        if (isSameToast(context, Type.submit, msg)) {
-            return current;
+
+        if (_context == null || !_context.toString().equals(context.toString())) {
+            if(_context != null)
+                current.dismiss();
+            current  = new SuperActivityToast(context);
+            _context = context;
+            Log.i("Toast","Toast context changed");
         }
 
-        DismissToast();
-        current = new SuperActivityToast(context, Style.TYPE_STANDARD);
         current.setText(msg);
-        current.setDuration(Style.DURATION_SHORT);
+        current.setDuration(Style.DURATION_VERY_SHORT);
         current.setFrame(Style.FRAME_KITKAT);
         current.setAnimations(Style.ANIMATIONS_POP);
         current.setIconResource(android.R.drawable.ic_menu_upload);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_GREEN));
         current.show();
-
         return current;
     }
 
@@ -107,33 +109,24 @@ public class ToastManager {
 
     public SuperActivityToast ShowError(final Context context, final String message, final int type, final int frameType) {
         // For syncing purposes
-        if (isSameToast(context, Type.error, message)) {
-            return current;
+        if (_context == null || !_context.toString().equals(context.toString())) {
+            if(_context != null)
+                current.dismiss();
+            current  = new SuperActivityToast(context);
+            Log.i("Toast","Toast context changed");
+            _context = context;
         }
 
-        DismissToast();
-        current = new SuperActivityToast(context, type);
         current.setText("   " + message);
         current.setIconResource(android.R.drawable.stat_notify_error);
         current.setAnimations(Style.ANIMATIONS_FADE);
-        current.setDuration(Style.DURATION_SHORT);
+        current.setDuration(Style.DURATION_VERY_SHORT);
         current.setFrame(frameType);
         current.setAnimations(Style.ANIMATIONS_FADE);
         current.setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED));
-        current.show();
+        if(!current.isShowing())
+            current.show();
         return current;
-    }
-
-    private Boolean isSameToast(Context context, Type type, String message) {
-
-        if (type == _type && message.equals(_message) && _context == context) {
-            return false;
-        }
-
-        _context = context;
-        _type = type;
-        _message = message;
-        return false;
     }
 
     public void Reset() {

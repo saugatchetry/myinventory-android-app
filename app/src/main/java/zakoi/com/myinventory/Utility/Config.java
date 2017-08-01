@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class Config {
     //Server
-    public static final String SERVER_URL = "http://server.cemnohouse.biz:8443";
+    public static final String SERVER_URL = "http://cemnohouse.biz:8443";
     public static boolean SYNC = true;
 //    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
 

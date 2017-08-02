@@ -8,9 +8,9 @@ import java.util.Date;
 
 public class Config {
     //Server
-    public static final String SERVER_URL = "http://cemnohouse.biz:8443";
+    public static final String SERVER_URL = "https://server.cemnohouse.biz";
     public static boolean SYNC = true;
-//    public static final String SERVER_URL = "https://myinventory-test.herokuapp.com";
+//    public static final String SERVER_URL = "http://e4d1a132.ngrok.io";
 
 
     //Shared Pref

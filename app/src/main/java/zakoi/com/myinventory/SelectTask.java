@@ -544,7 +544,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         }
         else{
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("3528881024",null,message,sentPI,deliveredPI);
+            smsManager.sendTextMessage(Config.PHONE_NUMBER,null,message,sentPI,deliveredPI);
         }
     }
 

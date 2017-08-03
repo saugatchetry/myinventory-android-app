@@ -10,6 +10,7 @@ public class Config {
     //Server
     public static final String SERVER_URL = "https://server.cemnohouse.biz";
     public static boolean SYNC = true;
+    public static final String PHONE_NUMBER = "+918884090930";
 //    public static final String SERVER_URL = "http://e4d1a132.ngrok.io";
 
 

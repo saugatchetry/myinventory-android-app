@@ -78,29 +78,30 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_marginTop="10dp"
         android:id="@+id/customerPhoneNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/customerName">
+        android:layout_below="@+id/customerName"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
 
         <TextView
 
-            android:text="Phone Number"
+            android:id="@+id/customerPhoneNumberLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/customerPhoneNumberLabel" />
+            android:text="Phone Number" />
 
         <EditText
+            android:id="@+id/customerPhoneNumberText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="phone"
-            android:hint="Phone Number"
-            android:background="@drawable/round"
-            android:padding="8dp"
             android:layout_below="@+id/customerPhoneNumberLabel"
+            android:background="@drawable/round"
             android:ems="10"
-            android:id="@+id/customerPhoneNumberText" />
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:padding="8dp" />
     </RelativeLayout>
 
     <RelativeLayout

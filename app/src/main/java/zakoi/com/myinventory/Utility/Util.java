@@ -2,14 +2,22 @@ package zakoi.com.myinventory.Utility;
 
 import android.util.Log;
 
+import com.activeandroid.query.Delete;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import zakoi.com.myinventory.model.CustomerInfo;
+import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.Items;
+import zakoi.com.myinventory.model.OutgoingStockTransfer;
+import zakoi.com.myinventory.model.StockTransfer;
+import zakoi.com.myinventory.model.Vendors;
 
 /**
  * Created by zakoi on 7/19/17.
@@ -34,6 +42,20 @@ public class Util {
             i.itemName = items.itemName;
             i.uom = items.uom;
             i.save();
+        }
+    }
+
+    public static void ClearAllDBs() {
+        try {
+            new Delete().from(CustomerInfo.class).execute();
+            new Delete().from(ItemReceipt.class).execute();
+            new Delete().from(Items.class).execute();
+            new Delete().from(OutgoingStockTransfer.class).execute();
+            new Delete().from(StockTransfer.class).execute();
+            new Delete().from(Vendors.class).execute();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

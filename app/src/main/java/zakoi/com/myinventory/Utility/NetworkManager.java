@@ -36,6 +36,12 @@ public class NetworkManager {
         client = retrofit.create(ReceiptClient.class);
     }
 
+    public void Reset() {
+        TIME_GET_ITEMS = null;
+        TIME_GET_TRANSFERS = null;
+        TIME_SHOW_DIALOG = null;
+    }
+
     // Singleton
     public static NetworkManager getInstance() {
         if (instance != null) {

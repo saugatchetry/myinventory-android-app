@@ -3,10 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="zakoi.com.myinventory.SignInActivity">
     <item
-    android:id="@+id/edit"
-    android:orderInCategory="100"
-    android:title="Edit"
-    app:showAsAction="always" />
+        android:id="@+id/edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:orderInCategory="100"
+        android:title="Edit Receipts"
+        app:showAsAction="always" />
 
     <!--<item-->
         <!--android:id="@+id/sync"-->

@@ -392,7 +392,6 @@ public class ReceiptEntry extends AppCompatActivity {
         if(id == R.id.sync){
             sendDataToServer();
         }
-
         return super.onOptionsItemSelected(item);
     }
 

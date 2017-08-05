@@ -41,7 +41,7 @@ public class StockTransfer extends Model {
         return new Select().all().from(StockTransfer.class).where("status = ?","Initiated").execute();
     }
 
-    public static List<StockTransfer> getaAllConfirmedTransfers(){
+    public static List<StockTransfer> getAllConfirmedTransfers(){
         return new Select().all().from(StockTransfer.class).where("status = ?","Confirmed")
                                                            .where("sync_cloud = ?",0).execute();
 

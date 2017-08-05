@@ -18,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,6 +36,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -47,14 +50,11 @@ import zakoi.com.myinventory.Utility.Config;
 import zakoi.com.myinventory.Utility.NetworkManager;
 import zakoi.com.myinventory.Utility.ToastManager;
 import zakoi.com.myinventory.Utility.Util;
-import zakoi.com.myinventory.model.CustomerInfo;
 import zakoi.com.myinventory.model.ItemReceipt;
 import zakoi.com.myinventory.model.Items;
 import zakoi.com.myinventory.model.OutgoingStockTransfer;
 import zakoi.com.myinventory.model.StockTransfer;
 
-import static android.R.attr.id;
-import static android.R.attr.name;
 import static zakoi.com.myinventory.R.id.id_tv_cash;
 import static zakoi.com.myinventory.R.id.id_tv_date;
 import static zakoi.com.myinventory.R.id.id_tv_stockTransfer;
@@ -70,7 +70,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
     Button btn_saveReceipts,btn_stockTransfer,btn_checkOut,btn_sync,btn_confirmStockTransfer;
     List<StockTransfer> list = new ArrayList<>();
     HashSet<Integer> stockIds = new HashSet<>();
-    AlertDialog alertDialog,downloadingDialog,confirmSendSMSDialog,syncingDataDialog;
+    AlertDialog alertDialog,downloadingDialog,confirmSendSMSDialog,resetDialog,cantResetDialog, syncingDataDialog;
 
     SharedPreferences sharedpreferences;
     String storeName;
@@ -121,12 +121,8 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         downloadingDialog = downloadingAlertDialogBuilder.create();
 
         AlertDialog.Builder confirmSendSMSAlertDialogBuilder = new AlertDialog.Builder(this);
-        //confirmSendSMSAlertDialogBuilder.setMessage("Ready To Send SMS");
         confirmSendSMSDialog = confirmSendSMSAlertDialogBuilder.create();
         confirmSendSMSDialog.setTitle("Send SMS");
-
-        //mytextview.setText(Html.fromHtml(sourceString));
-        //confirmSendSMSDialog.setMessage("Total Cash Collected - "+tv_totalCash.getText());
         String sourceString = "Total Cash Collected : " + "<b>" + tv_totalCash.getText() + "</b> ";
         confirmSendSMSDialog.setMessage(Html.fromHtml(sourceString));
         confirmSendSMSDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Send",
@@ -143,13 +139,55 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                     }
                 });
 
-        //confirmSendSMSDialog.show();
+
+        AlertDialog.Builder resetBuilder = new AlertDialog.Builder(this);
+        resetDialog = resetBuilder.create();
+        resetDialog.setTitle("Reset");
+        resetDialog.setMessage("Do you want to change your store?");
+        resetDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Reset();
+                    }
+                });
+        resetDialog.setButton(AlertDialog.BUTTON_NEGATIVE,"No",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog.Builder cantResetBuilder = new AlertDialog.Builder(this);
+        cantResetDialog = cantResetBuilder.create();
+        cantResetDialog.setTitle("Reset Not Allowed");
+        cantResetDialog.setMessage("Do you want to change your store?");
+        cantResetDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
 
         _toast = ToastManager.getInstance();
-        //_toast.ShowSyncToast(this);
-
         tv_storeName.setText(storeName);
         tv_date.setText(Util.getDate());
+    }
+
+    private void Reset() {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(Config.P_STORE_KEY, "default");
+        editor.putString(Config.P_TIME_STAMP, "");
+        editor.commit();
+
+        //clear all DBs
+        Util.ClearAllDBs();
+
+        //Reset Network
+        NetworkManager.getInstance().Reset();
+
+        Intent intent = new Intent(this, SplashScreen.class);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -364,7 +402,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
 
         if(force || NetworkManager.CallGetItems()) { {
             Log.i(TAG, "Get items called");
-            if (force)
+//            if (force)
                 _toast.ShowSyncToast(this);
             getAllTransferStocks();
             CheckForNewItems();
@@ -387,7 +425,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         // downloadingDialog.show();
         Log.i(TAG, "Syncing confirmed transfers");
 
-        List<StockTransfer> confirmedStocks = StockTransfer.getaAllConfirmedTransfers();
+        List<StockTransfer> confirmedStocks = StockTransfer.getAllConfirmedTransfers();
         final ArrayList<Integer> ids = new ArrayList<>();
         for(StockTransfer st : confirmedStocks){
             ids.add(st.transferId);
@@ -613,7 +651,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onResponse(Call<List<Items>> call, Response<List<Items>> response) {
                 List<Items> new_items_list = response.body();
-                AddItemsToDB(new_items_list);
+                AddnDeleteItemsInDB(new_items_list);
             }
 
             @Override
@@ -623,10 +661,13 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         });
     }
 
-    private void AddItemsToDB(List<Items> new_items_list) {
-        final HashSet<String> items_set = GetItemSet(Items.getAllItems());
-        new_items_list = FilterExistingItems(new_items_list, items_set);
-        Util.saveItemsToDB(new_items_list);
+    private void AddnDeleteItemsInDB(List<Items> new_items_list) {
+        HashMap<String, Items> items_to_be_deleted = GetItemMap(Items.getAllItems());;
+        HashMap<String, Items> items_in_db = UpdateDeletedItemsAndReturnItemsInDB(new_items_list,items_to_be_deleted);
+        Items.deleteItems(items_to_be_deleted);
+
+        List<Items> new_items = FilterExistingItems(new_items_list, items_in_db);
+        Util.saveItemsToDB(new_items);
 
         // Update Timestamp
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -634,24 +675,87 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         editor.commit();
     }
 
-    private HashSet<String> GetItemSet(List<Items> item_list) {
-        HashSet<String> return_array =  new HashSet<String>();
+    private HashMap<String, Items> GetItemMap(List<Items> item_list) {
+        HashMap<String, Items> return_array =  new HashMap<String, Items>();
 
         for(Items item : item_list) {
-            return_array.add(item.itemName);
+            return_array.put(item.itemName, item);
         }
         return return_array;
     }
 
-    private List<Items> FilterExistingItems(List<Items> item_list, HashSet<String> exists_set) {
+    private List<Items> FilterExistingItems(List<Items> item_list, HashMap<String,Items> exists_set) {
         List<Items> return_list = new ArrayList<>();
-
         for(Items item : item_list) {
-            if(!exists_set.contains(item.itemName))
+            if(!exists_set.containsKey(item.itemName))
                 return_list.add(item);
         }
         return return_list;
     }
 
+    private HashMap<String, Items> UpdateDeletedItemsAndReturnItemsInDB(List<Items> server_items_list, HashMap<String, Items> local_items_set) {
+        HashMap<String, Items> updated_items = new HashMap<>();
+        for(Items item : server_items_list) {
+            if(local_items_set.containsKey(item.itemName)) {
+                Items temp = local_items_set.get(item.itemName);
+                if (temp.uom.equals(item.uom)) {
+                    updated_items.put(item.itemName, item);
+                    local_items_set.remove(item.itemName);
+                }
+            }
+        }
+        return updated_items;
+    }
 
+    private String CheckIfResetPossible() {
+        if (ItemReceipt.getAllEditableReceipts().size() > 0) {
+            return "There are editable receipts, checkout and try again";
+        }
+
+        if (ItemReceipt.getAllCommitedButUnsyncedReceipts().size() > 0) {
+            return "There are unsynced receipts, Press Sync and try again";
+        }
+
+        if (StockTransfer.getAllUnconfirmedTransfers().size() > 0) {
+            return "There are unconfirmed stock transfers, Confirm and try again";
+        }
+
+        if (OutgoingStockTransfer.getaAllOutgoingTransfers().size() > 0 ||
+                StockTransfer.getAllConfirmedTransfers().size() > 0) {
+            return "There are unsynced stock transfers, Press Sync and try again";
+        }
+        return "Yes";
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_select_task, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.edit) {
+            Intent intent = new Intent(SelectTask.this,AllReceiptEntry.class);
+            startActivity(intent);
+        }
+        if(id == R.id.reset){
+            String message = CheckIfResetPossible();
+            if (message.equalsIgnoreCase("Yes")) {
+                resetDialog.show();
+            }
+            else {
+                cantResetDialog.setMessage(message);
+                cantResetDialog.show();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

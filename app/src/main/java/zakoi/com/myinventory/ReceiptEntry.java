@@ -293,6 +293,7 @@ public class ReceiptEntry extends AppCompatActivity {
 
     private void clearForm() {
 
+        et_customerName.setText("Cash");
         et_customerPhoneNumber.setText("");
         et_itemAmount.setText("");
         actv_itemName.setText("");

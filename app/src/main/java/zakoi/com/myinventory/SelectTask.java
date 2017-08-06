@@ -560,7 +560,9 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         List<ItemReceipt> allReceipts = ItemReceipt.getAllEditableReceipts();
         totalCash = 0.0;
         for(ItemReceipt ir : allReceipts){
-            totalCash = totalCash + ir.amount;
+            if (ir.customerName.equalsIgnoreCase("Cash")) {
+                totalCash = totalCash + ir.amount;
+            }
         }
         Log.d("TotalCash","Cash = "+totalCash);
         return totalCash;

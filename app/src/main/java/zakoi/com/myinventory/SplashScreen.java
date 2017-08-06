@@ -70,10 +70,13 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void saveVendorsToDB(List<Vendors> body) {
+
         if(body == null) {
             SplashScreen.this.ShowError();
             return;
         }
+
+        Vendors.DeleteAll();
 
         ArrayList<String> vendor_names = new ArrayList<>();
         for (Vendors vendor : body){

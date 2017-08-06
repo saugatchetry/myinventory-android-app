@@ -8,10 +8,11 @@ import java.util.Date;
 
 public class Config {
     //Server
-//    public static final String SERVER_URL = "https://server.cemnohouse.biz";
+    public static final String SERVER_URL = "https://server.cemnohouse.biz";
     public static boolean SYNC = true;
     public static final String PHONE_NUMBER = "+918884090930";
-    public static final String SERVER_URL = "https://c87329ea.ngrok.io";
+//    public static final String PHONE_NUMBER = "4127261460";
+//    public static final String SERVER_URL = "https://07c8bd4c.ngrok.io";
 
 
     //Shared Pref

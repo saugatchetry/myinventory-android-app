@@ -218,9 +218,14 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
                         SyncAll();
                         //Toast.makeText(SelectTask.this,"SMS Sent Successfully",Toast.LENGTH_SHORT).show();
                         break;
+
+                    /*
+                        why sync with default result code ??
+                     */
+
                     default:
                         Toast.makeText(SelectTask.this,"SMS Couldn't be Sent",Toast.LENGTH_SHORT).show();
-                        SyncAll();
+                        SyncAll(); //this might cause a problem ....
                         break;
                 }
             }
@@ -585,6 +590,7 @@ public class SelectTask extends AppCompatActivity implements View.OnClickListene
         else{
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(Config.PHONE_NUMBER,null,message,sentPI,deliveredPI);
+            makeAllReceiptsUneditable(); // added by Saugat to fix error reported on 11th-August-2017
         }
     }
 
